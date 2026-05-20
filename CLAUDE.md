@@ -278,6 +278,25 @@ el binario Go corriendo localmente en el puerto 8766:
   * ✅ Hosts no permitidos (evil.com) son rechazados con "Invalid Host header"
   * ✅ No más "Forbidden: invalid Host header" del SDK en hosts válidos
 
+### 2026-05-20 — Corrección: detección robusta de projectRoot
+- **Bug corregido**: la lógica de `initPaths()` en `runner.go` aplicaba `filepath.Dir`
+  tres veces sobre `os.Executable()`, asumiendo que el binario estaba en
+  `cmd/server/motorgo-server`. Pero el comando de build del contrato
+  (`go build -o motorgo-server ./cmd/server`) deja el binario en la raíz del proyecto,
+  causando que `projectRoot` quedara dos niveles arriba del correcto (`/home` en vez
+  de `/home/rodo/MotorGo`).
+- **Causa**: conteo de niveles fijos en vez de búsqueda dinámica.
+- **Solución**: estrategia robusta que parte del directorio del ejecutable y asciende
+  verificando la existencia de `bin/` y `data/Base/`, hasta un máximo de 4 niveles.
+  Esto permite que el binario funcione sin importar su ubicación (raíz, subdirectorio,
+  o ejecutado desde `/tmp`). Se mantiene el override por `PROJECT_ROOT` env var con
+  prioridad.
+- **Validación**:
+  * ✅ `cd /tmp && PROJECT_ROOT="" /home/rodo/MotorGo/motorgo-server` arranca
+    correctamente y detecta automáticamente `/home/rodo/MotorGo` como `projectRoot`
+  * ✅ Endpoint `/health` responde correctamente desde cualquier ubicación
+  * ✅ Sin errores en logs de inicio
+
 ### 2026-05-20 — Migración completada (fase 1: implementación)
 - **Rama**: `migracion-go`
 - **SDK MCP**: v1.6.0 de `github.com/modelcontextprotocol/go-sdk/mcp`
