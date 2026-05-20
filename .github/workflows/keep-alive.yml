@@ -1,0 +1,43 @@
+# Keep-alive para el servicio MotorRender en Render (plan free).
+#
+# Render duerme las instancias free tras 15 min de inactividad.
+# Este workflow hace un GET a /health periodicamente para mantenerlo
+# despierto durante la ventana horaria de uso (cursos / clases).
+#
+# IMPORTANTE: GitHub Actions usa horario UTC.
+#   Argentina (UTC-3): para una ventana local 16:00-20:00
+#   se traduce a UTC 19:00-23:00.
+#
+# El cron '*/10 19-22 * * *' dispara cada 10 minutos entre las 19:00
+# y las 22:50 UTC = 16:00 a 19:50 hora Argentina. El ultimo ping a
+# las 19:50 ARG mantiene el servicio vivo hasta ~20:05 ARG.
+#
+# Para cambiar la ventana, ajustar el rango de horas en el cron.
+# Para pinguear solo dias de semana, agregar ' 1-5' al final del cron.
+
+name: Keep Render Awake
+
+on:
+  schedule:
+    # cada 10 min, 19:00-22:50 UTC (= 16:00-19:50 ARG)
+    - cron: '*/10 19-22 * * *'
+  # permite disparar manualmente desde la pestana Actions de GitHub
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: |
+          echo "Pinging MotorRender health endpoint..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 90 \
+            https://motor-render-mcp.onrender.com/health)
+          echo "HTTP status: $HTTP_CODE"
+          if [ "$HTTP_CODE" = "200" ]; then
+            echo "OK - servicio despierto"
+          else
+            echo "ATENCION - codigo inesperado: $HTTP_CODE"
+            exit 1
+          fi
