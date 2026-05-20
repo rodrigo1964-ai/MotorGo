@@ -54,8 +54,39 @@ func initPaths() error {
 		if err != nil {
 			return fmt.Errorf("no se pudo resolver symlinks del ejecutable: %w", err)
 		}
-		// Subir dos niveles: /path/to/cmd/server/motorgo-server -> /path/to
-		projectRoot = filepath.Dir(filepath.Dir(filepath.Dir(exe)))
+
+		// Estrategia robusta: partir del directorio del ejecutable y ascender
+		// hasta encontrar bin/ y data/Base/, con un máximo de 4 niveles.
+		// Esto permite que el binario funcione tanto si está en la raíz del proyecto
+		// (go build -o motorgo-server ./cmd/server) como si está en un subdirectorio.
+		projectRoot = filepath.Dir(exe)
+		found := false
+		for i := 0; i < 4; i++ {
+			binCandidate := filepath.Join(projectRoot, "bin")
+			dataCandidate := filepath.Join(projectRoot, "data", "Base")
+
+			// Verificar si ambos directorios existen
+			binStat, binErr := os.Stat(binCandidate)
+			dataStat, dataErr := os.Stat(dataCandidate)
+
+			if binErr == nil && binStat.IsDir() && dataErr == nil && dataStat.IsDir() {
+				// Encontrado: ambos directorios existen en este nivel
+				found = true
+				break
+			}
+
+			// No encontrado en este nivel: subir un nivel
+			parent := filepath.Dir(projectRoot)
+			if parent == projectRoot {
+				// No podemos subir más (llegamos al root del filesystem)
+				break
+			}
+			projectRoot = parent
+		}
+
+		if !found {
+			return fmt.Errorf("no se pudo encontrar bin/ y data/Base/ ascendiendo desde %s", filepath.Dir(exe))
+		}
 	}
 
 	binDir = filepath.Join(projectRoot, "bin")
