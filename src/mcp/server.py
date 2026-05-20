@@ -1,25 +1,23 @@
-"""Servidor MCP stdio para MotorInferencia.
+"""Servidor MCP HTTP para MotorRender (deploy remoto en Render).
 
-JSON-RPC 2.0 sobre stdin/stdout, vía el SDK oficial `mcp` (>= 1.0).
+JSON-RPC 2.0 sobre HTTP streamable, vía FastMCP (mcp >= 1.2).
 Expone 4 tools que envuelven los binarios Pascal de bin/ sin modificarlos.
 
-Lanzamiento:
+Lanzamiento local:
     python3 -m src.mcp.server
 
-Para Claude Desktop, ver README_MCP.txt en la raíz del proyecto.
+Variables de entorno:
+    PORT  - puerto HTTP (default: 8000, Render lo inyecta automáticamente)
+    HOST  - bind address (default: 0.0.0.0, escucha en todas las interfaces)
 """
-
 from __future__ import annotations
 
-import asyncio
-import json
 import logging
+import os
 import sys
 from typing import Any
 
-from mcp.server import Server
-from mcp.server.stdio import stdio_server
-from mcp.types import TextContent, Tool
+from mcp.server.fastmcp import FastMCP
 
 from .errors import PascalError
 from .pascal_runner import (
@@ -29,112 +27,95 @@ from .pascal_runner import (
     run_propagate,
     run_syntax_check,
 )
-from .tool_schemas import TOOL_SCHEMAS
 
-# Logging a stderr (stdout está reservado para el frame JSON-RPC).
+# Logging a stderr (Render lo recolecta en su panel de logs)
 logging.basicConfig(
     level=logging.INFO,
     stream=sys.stderr,
     format="[mcp] %(asctime)s %(levelname)s %(message)s",
 )
-log = logging.getLogger("motor_inferencia.mcp")
+log = logging.getLogger("motor_render.mcp")
 
-SERVER_NAME = "motor-inferencia"
+SERVER_NAME = "motor-render"
 SERVER_VERSION = "1.0.0"
 
-server: Server = Server(SERVER_NAME)
+mcp = FastMCP(SERVER_NAME)
 
 
 # ---------------------------------------------------------------------------
-# Handlers
+# Tools (FastMCP deriva el inputSchema de la firma de cada función)
 # ---------------------------------------------------------------------------
 
-
-@server.list_tools()
-async def handle_list_tools() -> list[Tool]:
-    """Reporta los 4 tools declarados en tool_schemas.py."""
-    return [
-        Tool(
-            name=name,
-            description=spec["description"],
-            inputSchema=spec["inputSchema"],
-        )
-        for name, spec in TOOL_SCHEMAS.items()
-    ]
-
-
-def _text(payload: Any) -> list[TextContent]:
-    """Serializa un payload a un único TextContent (JSON pretty-printed)."""
-    body = json.dumps(payload, ensure_ascii=False, indent=2)
-    return [TextContent(type="text", text=body)]
-
-
-def _error_text(exc: PascalError) -> list[TextContent]:
-    return [TextContent(type="text", text=exc.to_text())]
-
-
-@server.call_tool()
-async def handle_call_tool(
-    name: str, arguments: dict[str, Any] | None
-) -> list[TextContent]:
-    """Dispatch al pascal_runner. No cachea entre invocaciones."""
-    arguments = arguments or {}
-    log.info("call_tool name=%s keys=%s", name, sorted(arguments.keys()))
-
+@mcp.tool()
+def csp_syntax_check(
+    modelo_json: dict[str, Any],
+    timeout_s: float = DEFAULT_TIMEOUT_S,
+) -> dict[str, Any]:
+    """Valida sintaxis de un modelo CSP vía bin/SyntaxChecker."""
     try:
-        if name == "csp_syntax_check":
-            modelo = arguments["modelo_json"]
-            timeout = float(arguments.get("timeout_s", DEFAULT_TIMEOUT_S))
-            result = await asyncio.to_thread(
-                run_syntax_check, modelo, timeout_s=timeout
-            )
-            return _text(result)
-
-        if name == "csp_propagate":
-            modelo = arguments["modelo_json"]
-            motor = arguments.get("motor", "forward")
-            timeout = float(arguments.get("timeout_s", DEFAULT_TIMEOUT_S))
-            result = await asyncio.to_thread(
-                run_propagate, modelo, motor, timeout_s=timeout
-            )
-            return _text(result)
-
-        if name == "csp_list_domains":
-            result = await asyncio.to_thread(list_domains)
-            return _text({"dominios": result, "total": len(result)})
-
-        if name == "csp_load_model":
-            dominio = arguments["dominio"]
-            subdominio = arguments["subdominio"]
-            result = await asyncio.to_thread(load_model, dominio, subdominio)
-            return _text(result)
-
-        raise PascalError(f"tool desconocido: {name}", binary="server")
-
+        return run_syntax_check(modelo_json, timeout_s=timeout_s)
     except PascalError as e:
-        log.warning("tool %s error: %s", name, e)
-        # El SDK convierte una excepción en CallToolResult con isError=true.
-        # Re-raise como RuntimeError con texto para que aparezca en el cliente.
         raise RuntimeError(e.to_text()) from e
-    except KeyError as e:
-        raise RuntimeError(f"argumento requerido faltante: {e}") from e
+
+
+@mcp.tool()
+def csp_propagate(
+    modelo_json: dict[str, Any],
+    motor: str = "forward",
+    timeout_s: float = DEFAULT_TIMEOUT_S,
+) -> dict[str, Any]:
+    """Pipeline JsonToGraph -> <motor>. motor in {forward, csp, fwd, bwd}."""
+    try:
+        return run_propagate(modelo_json, motor, timeout_s=timeout_s)
+    except PascalError as e:
+        raise RuntimeError(e.to_text()) from e
+
+
+@mcp.tool()
+def csp_list_domains() -> dict[str, Any]:
+    """Lista carpetas data/Base/NN_*/ con el conteo de modelos *_csp.json."""
+    result = list_domains()
+    return {"dominios": result, "total": len(result)}
+
+
+@mcp.tool()
+def csp_load_model(dominio: str, subdominio: str) -> dict[str, Any]:
+    """Lee data/Base/<dominio>/<subdominio>_csp.json y devuelve el JSON."""
+    try:
+        return load_model(dominio, subdominio)
+    except PascalError as e:
+        raise RuntimeError(e.to_text()) from e
+
+
+# ---------------------------------------------------------------------------
+# Health endpoint (para keep-alive desde GitHub Actions o monitoreo externo)
+# ---------------------------------------------------------------------------
+
+@mcp.custom_route("/health", methods=["GET"])
+async def health(_request):
+    from starlette.responses import JSONResponse
+    return JSONResponse({
+        "status": "ok",
+        "name": SERVER_NAME,
+        "version": SERVER_VERSION,
+    })
 
 
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
-
-async def main() -> None:
-    log.info("MotorInferencia MCP server %s iniciando (stdio)", SERVER_VERSION)
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            server.create_initialization_options(),
-        )
-    log.info("MotorInferencia MCP server detenido")
+def main() -> None:
+    port = int(os.environ.get("PORT", "8000"))
+    host = os.environ.get("HOST", "0.0.0.0")
+    log.info(
+        "MotorRender MCP server %s iniciando (streamable-http %s:%d)",
+        SERVER_VERSION, host, port,
+    )
+    mcp.settings.host = host
+    mcp.settings.port = port
+    mcp.run(transport="streamable-http")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
