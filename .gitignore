@@ -31,6 +31,7 @@ Thumbs.db
 
 # Excepciones obligatorias para que el deploy funcione:
 !requirements.txt
+!CLAUDE.md
 
 # Pascal compilation artifacts
 obj/
@@ -44,3 +45,4 @@ obj/
 *.l
 *.y
 *.tex
+motorgo-server
