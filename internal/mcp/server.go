@@ -35,19 +35,31 @@ const (
 var allowedHosts []string
 
 // initAllowedHosts construye la allowlist de Host headers a partir de ALLOWED_HOST.
+//
+// ALLOWED_HOST puede ser:
+//   - Un solo host: "motor-render-mcp.onrender.com"
+//   - Múltiples hosts separados por comas: "motor-render-mcp.onrender.com,tailscale-host.ts.net"
+//
+// Esto permite configurar varios hosts permitidos (Render + Tailscale + otros) sin recompilar.
 func initAllowedHosts() {
-	allowedHost := os.Getenv("ALLOWED_HOST")
-	if allowedHost == "" {
-		allowedHost = "motor-render-mcp.onrender.com"
+	allowedHostEnv := os.Getenv("ALLOWED_HOST")
+	if allowedHostEnv == "" {
+		allowedHostEnv = "motor-render-mcp.onrender.com"
 	}
 
-	// Permitir el hostname con y sin puerto
-	// También permitir localhost y 127.0.0.1 (con y sin puerto) para testing local
-	allowedHosts = []string{
-		allowedHost,
-		"localhost",
-		"127.0.0.1",
+	// Parsear la lista de hosts (separados por comas)
+	customHosts := strings.Split(allowedHostEnv, ",")
+
+	// Construir la allowlist: hosts custom + localhost
+	// Siempre incluir localhost y 127.0.0.1 para testing local
+	allowedHosts = make([]string, 0, len(customHosts)+2)
+	for _, h := range customHosts {
+		h = strings.TrimSpace(h) // quitar espacios en blanco
+		if h != "" {
+			allowedHosts = append(allowedHosts, h)
+		}
 	}
+	allowedHosts = append(allowedHosts, "localhost", "127.0.0.1")
 }
 
 // isHostAllowed verifica si un Host header está en la allowlist.
@@ -289,9 +301,24 @@ func NewHTTPHandler(mcpServer *mcp.Server) http.Handler {
 	// mcp.NewStreamableHTTPHandler crea un handler que maneja el protocolo MCP sobre HTTP/SSE
 	// La función que pasamos como primer argumento es un "server selector": dado un http.Request,
 	// devuelve el servidor MCP a usar. En nuestro caso siempre devolvemos el mismo servidor.
+	//
+	// Configuración de opciones:
+	//   - DisableLocalhostProtection = true: desactivamos la protección anti DNS-rebinding
+	//     interna del SDK porque ya tenemos nuestro propio middleware (dnsRebindingProtection)
+	//     que valida el Host header contra allowedHosts. Esto evita tener dos validaciones
+	//     duplicadas y permite que el middleware custom sea el único punto de control.
+	//   - Logger = nil: no loguear por ahora (podemos agregar un logger más adelante si se necesita)
+	//
+	// Nota: la protección interna del SDK rechaza requests a localhost con Host header
+	// no-localhost. Esto está bien como default, pero en nuestro caso queremos permitir
+	// hosts custom (Render, Tailscale) que están en allowedHosts, así que desactivamos
+	// la protección del SDK.
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server {
 		return mcpServer
-	}, nil)
+	}, &mcp.StreamableHTTPOptions{
+		DisableLocalhostProtection: true,
+		Logger:                     nil,
+	})
 
 	// Crear el router (ServeMux)
 	mux := http.NewServeMux()

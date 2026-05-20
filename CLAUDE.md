@@ -254,6 +254,30 @@ el binario Go corriendo localmente en el puerto 8766:
 
 ## 10. Historial de Modificaciones
 
+### 2026-05-20 — Corrección: protección DNS rebinding y soporte multi-host
+- **Bug corregido**: el endpoint `/mcp` rechazaba hosts válidos de la allowlist con
+  "Forbidden: invalid Host header", diferente del mensaje del middleware custom.
+- **Causa**: el SDK de MCP aplica su propia protección anti DNS-rebinding interna
+  (independiente del middleware custom) que por defecto solo acepta localhost.
+  Al pasar `nil` como segundo argumento a `NewStreamableHTTPHandler`, esta protección
+  del SDK rechazaba cualquier Host header no-localhost, incluso si estaba en la
+  allowlist del middleware custom.
+- **Solución**:
+  * Desactivar la protección interna del SDK con `DisableLocalhostProtection: true`
+    en `StreamableHTTPOptions`, dejando que el middleware custom sea el único
+    punto de control. Esto evita duplicación de validaciones y permite que la
+    allowlist del middleware custom funcione correctamente.
+  * Documentado en comentarios de `NewHTTPHandler`: por qué desactivamos la
+    protección del SDK y cómo se relaciona con el middleware custom.
+- **Mejora adicional**: `ALLOWED_HOST` ahora acepta múltiples hosts separados por
+  comas (ej: `"motor-render-mcp.onrender.com,tailscale-host.ts.net"`), permitiendo
+  configurar varios hosts permitidos (Render + Tailscale + otros) sin recompilar.
+- **Validación**:
+  * ✅ Hosts en la allowlist (motor-render-mcp.onrender.com, tailscale-test.ts.net,
+    example.com, localhost:8766) pasan el middleware correctamente
+  * ✅ Hosts no permitidos (evil.com) son rechazados con "Invalid Host header"
+  * ✅ No más "Forbidden: invalid Host header" del SDK en hosts válidos
+
 ### 2026-05-20 — Migración completada (fase 1: implementación)
 - **Rama**: `migracion-go`
 - **SDK MCP**: v1.6.0 de `github.com/modelcontextprotocol/go-sdk/mcp`
