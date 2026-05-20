@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/modelcontextprotocol/go-sdk"
+	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 const (
