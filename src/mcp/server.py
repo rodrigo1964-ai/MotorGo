@@ -7,8 +7,10 @@ Lanzamiento local:
     python3 -m src.mcp.server
 
 Variables de entorno:
-    PORT  - puerto HTTP (default: 8000, Render lo inyecta automáticamente)
-    HOST  - bind address (default: 0.0.0.0, escucha en todas las interfaces)
+    PORT          - puerto HTTP (default: 8000, Render lo inyecta automáticamente)
+    HOST          - bind address (default: 0.0.0.0, escucha en todas las interfaces)
+    ALLOWED_HOST  - hostname público para la allowlist anti DNS-rebinding
+                    (default: motor-render-mcp.onrender.com)
 """
 from __future__ import annotations
 
@@ -18,6 +20,7 @@ import sys
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 from .errors import PascalError
 from .pascal_runner import (
@@ -39,7 +42,29 @@ log = logging.getLogger("motor_render.mcp")
 SERVER_NAME = "motor-render"
 SERVER_VERSION = "1.0.0"
 
-mcp = FastMCP(SERVER_NAME)
+# Hostname público (Render). Configurable por env var para portabilidad.
+ALLOWED_HOST = os.environ.get("ALLOWED_HOST", "motor-render-mcp.onrender.com")
+
+# Allowlist anti DNS-rebinding: sin esto, el transport rechaza cualquier
+# Host header que no sea localhost con "Invalid Host header".
+_security = TransportSecuritySettings(
+    enable_dns_rebinding_protection=True,
+    allowed_hosts=[
+        ALLOWED_HOST,
+        f"{ALLOWED_HOST}:*",
+        "localhost",
+        "localhost:*",
+        "127.0.0.1",
+        "127.0.0.1:*",
+    ],
+    allowed_origins=[
+        f"https://{ALLOWED_HOST}",
+        "http://localhost:*",
+        "http://127.0.0.1:*",
+    ],
+)
+
+mcp = FastMCP(SERVER_NAME, transport_security=_security)
 
 
 # ---------------------------------------------------------------------------
