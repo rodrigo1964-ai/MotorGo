@@ -1,17 +1,17 @@
-# Render Blueprint para MotorRender MCP
-# Documentación: https://render.com/docs/blueprint-spec
+# Render Blueprint para MotorGo (wrapper MCP en Go)
+# Documentacion: https://render.com/docs/blueprint-spec
 services:
   - type: web
     name: motor-render-mcp
-    runtime: python
+    runtime: go
     plan: free
     region: oregon
     branch: main
-    buildCommand: pip install -r requirements.txt
-    startCommand: python -m src.mcp.server
+    buildCommand: go build -o motorgo-server ./cmd/server
+    startCommand: ./motorgo-server
     healthCheckPath: /health
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.12.0"
       - key: HOST
         value: "0.0.0.0"
+      - key: ALLOWED_HOST
+        value: "motor-render-mcp.onrender.com"
