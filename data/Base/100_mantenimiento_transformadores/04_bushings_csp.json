@@ -1,0 +1,334 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "bushings_aisladores_pasantes",
+    "norma": "IEEE C57.19.100 / IEC 60137 / CIGRE WG A2.43",
+    "descripcion": "Ensayos sobre aisladores pasantes (bushings) de transformadores: medicion de capacitancia C1 y factor de disipacion tan-delta, deteccion de corto entre capas, contaminacion superficial, perdida de impregnacion y degradacion activa",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte I, Seccion 6"
+  },
+  "variables": [
+    {
+      "name": "DELTA_C1_PCT",
+      "type": "numeric",
+      "domain": [0.0, 20.0],
+      "value": [0.0, 0.5],
+      "section": "predicados_derivados",
+      "description": "Variacion relativa de capacitancia C1 respecto a placa: |C1 - C1_nom| / C1_nom * 100"
+    },
+    {
+      "name": "TAN_DELTA_ACTUAL_PCT",
+      "type": "numeric",
+      "domain": [0.0, 5.0],
+      "value": [0.0, 0.5],
+      "section": "predicados_derivados",
+      "description": "Factor de disipacion actual del bushing, en porcentaje"
+    },
+    {
+      "name": "TENDENCIA_TAN_DELTA_PCT_MES",
+      "type": "numeric",
+      "domain": [-0.5, 0.5],
+      "value": [-0.01, 0.01],
+      "section": "predicados_derivados",
+      "description": "Tendencia temporal de tan-delta (pendiente de regresion lineal sobre serie historica), en porcentaje por mes"
+    },
+    {
+      "name": "TIPO_BUSHING_OIP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "configuracion",
+      "description": "Bushing tipo OIP (Oil-Impregnated Paper)"
+    },
+    {
+      "name": "TIPO_BUSHING_RIP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "configuracion",
+      "description": "Bushing tipo RIP (Resin-Impregnated Paper)"
+    },
+    {
+      "name": "C1_MAYOR_NOMINAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "C1 actual mayor a la nominal (indicio de corto entre capas: menos capas activas dan mayor capacitancia)"
+    },
+    {
+      "name": "HUMEDAD_RELATIVA_ALTA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "configuracion",
+      "description": "Humedad relativa ambiente > 70%"
+    },
+    {
+      "name": "FUGA_O_NIVEL_BAJO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "configuracion",
+      "description": "Bushing con fuga visible de aceite o nivel bajo en mirilla"
+    },
+    {
+      "name": "EDAD_SERVICIO_ANOS",
+      "type": "numeric",
+      "domain": [0.0, 60.0],
+      "value": [0.0, 60.0],
+      "section": "configuracion",
+      "description": "Edad de servicio del bushing en anos"
+    },
+    {
+      "name": "EST_BUSH_EXCELENTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "clasificadores",
+      "description": "Estado bushing excelente: DELTA_C1_PCT < 0.5 y TAN_DELTA_ACTUAL_PCT < 0.5"
+    },
+    {
+      "name": "EST_BUSH_ACEPTABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado bushing aceptable: DELTA_C1_PCT < 1.0 y TAN_DELTA_ACTUAL_PCT < 0.7 (excluye excelente)"
+    },
+    {
+      "name": "EST_BUSH_MARGINAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado bushing marginal: DELTA_C1_PCT en [1, 2] o TAN_DELTA_ACTUAL_PCT en [0.7, 1.0]"
+    },
+    {
+      "name": "EST_BUSH_POBRE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado bushing pobre: DELTA_C1_PCT en [2, 5] o TAN_DELTA_ACTUAL_PCT en [1.0, 1.5]"
+    },
+    {
+      "name": "EST_BUSH_CRITICO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado bushing critico: DELTA_C1_PCT > 5.0 o TAN_DELTA_ACTUAL_PCT > 1.5"
+    },
+    {
+      "name": "H_CORTO_CAPAS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: cortocircuito entre capas internas del bushing. Inferido en OIP con DELTA_C1_PCT > 1.0 y C1 mayor a nominal"
+    },
+    {
+      "name": "H_CONTAMINACION_SUPERFICIAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: contaminacion superficial del bushing. Inferido con DELTA_C1_PCT < 1.0 pero tan-delta elevado y humedad relativa alta"
+    },
+    {
+      "name": "H_PERDIDA_IMPREGNACION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: perdida de impregnacion del bushing OIP. Inferido en OIP con fuga o nivel bajo y tan-delta > 0.7"
+    },
+    {
+      "name": "H_DEGRADACION_ACTIVA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: degradacion activa en curso. Inferido cuando la tendencia de tan-delta supera 0.05% por mes"
+    },
+    {
+      "name": "H_DEFECTO_FABRICACION_RIP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: defecto de fabricacion en bushing RIP. Inferido en RIP joven (< 5 anos) con estado pobre o critico"
+    },
+    {
+      "name": "A_MONITOREO_NORMAL_BUSH",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "acciones",
+      "description": "Accion: monitoreo normal del bushing. Inferido cuando excelente o aceptable"
+    },
+    {
+      "name": "A_LIMPIEZA_SUPERFICIAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: limpieza superficial del bushing. Inferido cuando H_CONTAMINACION_SUPERFICIAL"
+    },
+    {
+      "name": "A_REPARACION_SELLO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: reparacion de sello/junta para detener fuga. Inferido cuando H_PERDIDA_IMPREGNACION"
+    },
+    {
+      "name": "A_PROGRAMAR_REEMPLAZO_BUSH",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: programar reemplazo del bushing. Inferido cuando EST_BUSH_POBRE"
+    },
+    {
+      "name": "A_REEMPLAZO_URGENTE_BUSH",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: reemplazo urgente del bushing. Inferido cuando EST_BUSH_CRITICO o (H_CORTO_CAPAS y H_DEGRADACION_ACTIVA)"
+    },
+    {
+      "name": "A_RECLAMO_GARANTIA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: reclamo de garantia al fabricante. Inferido cuando H_DEFECTO_FABRICACION_RIP"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "DELTA_C1_PCT < 0.5 AND TAN_DELTA_ACTUAL_PCT < 0.5 AND EST_BUSH_EXCELENTE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Bushing excelente: ambos parametros muy bajos"
+    },
+    {
+      "constraints": [
+        "DELTA_C1_PCT < 1.0 AND TAN_DELTA_ACTUAL_PCT < 0.7 AND NOT EST_BUSH_EXCELENTE AND EST_BUSH_ACEPTABLE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Bushing aceptable (estado intermedio)"
+    },
+    {
+      "constraints": [
+        "((DELTA_C1_PCT >= 1.0 AND DELTA_C1_PCT < 2.0) OR (TAN_DELTA_ACTUAL_PCT >= 0.7 AND TAN_DELTA_ACTUAL_PCT < 1.0)) AND EST_BUSH_MARGINAL"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Bushing marginal"
+    },
+    {
+      "constraints": [
+        "((DELTA_C1_PCT >= 2.0 AND DELTA_C1_PCT < 5.0) OR (TAN_DELTA_ACTUAL_PCT >= 1.0 AND TAN_DELTA_ACTUAL_PCT < 1.5)) AND EST_BUSH_POBRE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Bushing pobre"
+    },
+    {
+      "constraints": [
+        "(DELTA_C1_PCT >= 5.0 OR TAN_DELTA_ACTUAL_PCT >= 1.5) AND EST_BUSH_CRITICO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Bushing critico"
+    },
+    {
+      "constraints": [
+        "TIPO_BUSHING_OIP AND DELTA_C1_PCT > 1.0 AND C1_MAYOR_NOMINAL AND H_CORTO_CAPAS"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Corto entre capas: bushing OIP, capacitancia desviada al alza"
+    },
+    {
+      "constraints": [
+        "DELTA_C1_PCT < 1.0 AND TAN_DELTA_ACTUAL_PCT > 0.7 AND HUMEDAD_RELATIVA_ALTA AND H_CONTAMINACION_SUPERFICIAL"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Contaminacion superficial: C1 normal pero tan-delta elevado con humedad alta"
+    },
+    {
+      "constraints": [
+        "TIPO_BUSHING_OIP AND FUGA_O_NIVEL_BAJO AND TAN_DELTA_ACTUAL_PCT > 0.7 AND H_PERDIDA_IMPREGNACION"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Perdida de impregnacion: bushing OIP con fuga visible y tan-delta elevado"
+    },
+    {
+      "constraints": [
+        "TENDENCIA_TAN_DELTA_PCT_MES > 0.05 AND H_DEGRADACION_ACTIVA"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Degradacion activa: tendencia ascendente de tan-delta superior a 0.05%/mes"
+    },
+    {
+      "constraints": [
+        "TIPO_BUSHING_RIP AND (EST_BUSH_POBRE OR EST_BUSH_CRITICO) AND EDAD_SERVICIO_ANOS < 5.0 AND H_DEFECTO_FABRICACION_RIP"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Defecto de fabricacion RIP: bushing RIP joven en estado pobre o critico"
+    },
+    {
+      "constraints": [
+        "(EST_BUSH_EXCELENTE OR EST_BUSH_ACEPTABLE) AND A_MONITOREO_NORMAL_BUSH"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion monitoreo normal cuando bushing en buen estado"
+    },
+    {
+      "constraints": [
+        "H_CONTAMINACION_SUPERFICIAL AND A_LIMPIEZA_SUPERFICIAL"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion limpieza superficial ante contaminacion"
+    },
+    {
+      "constraints": [
+        "H_PERDIDA_IMPREGNACION AND A_REPARACION_SELLO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion reparacion del sello cuando hay perdida de impregnacion"
+    },
+    {
+      "constraints": [
+        "EST_BUSH_POBRE AND A_PROGRAMAR_REEMPLAZO_BUSH"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion programar reemplazo cuando bushing en estado pobre"
+    },
+    {
+      "constraints": [
+        "(EST_BUSH_CRITICO OR (H_CORTO_CAPAS AND H_DEGRADACION_ACTIVA)) AND A_REEMPLAZO_URGENTE_BUSH"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion reemplazo urgente: estado critico o corto entre capas con degradacion activa simultanea"
+    },
+    {
+      "constraints": [
+        "H_DEFECTO_FABRICACION_RIP AND A_RECLAMO_GARANTIA"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion reclamo de garantia ante defecto de fabricacion en bushing RIP joven"
+    },
+    {
+      "constraints": [
+        "DELTA_C1_PCT IN [0.0, 20.0] AND TAN_DELTA_ACTUAL_PCT IN [0.0, 5.0] AND TENDENCIA_TAN_DELTA_PCT_MES IN [-0.5, 0.5] AND EDAD_SERVICIO_ANOS IN [0.0, 60.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para variables numericas del ensayo"
+    }
+  ],
+  "functions": []
+}

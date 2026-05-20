@@ -1,0 +1,1359 @@
+{
+	"description": "Calificación de procedimiento de soldadura — WPS/PQR",
+	"variables": {
+		"tipo_material": {
+			"type": "set",
+			"domain": [
+				"A36",
+				"A572Gr50",
+				"A588",
+				"A516Gr70",
+				"A514"
+			],
+			"value": [
+				"A36",
+				"A572Gr50"
+			],
+			"section": "1. Material base",
+			"description": "Acero estructural identificado en campo"
+		},
+		"espesor_mm": {
+			"type": "real",
+			"domain": [
+				1.5,
+				150
+			],
+			"value": [
+				19,
+				21
+			],
+			"section": "1. Material base",
+			"description": "Calibre digital ±1.0mm — nominal 20mm"
+		},
+		"limite_elastico_mpa": {
+			"type": "real",
+			"domain": [
+				230,
+				700
+			],
+			"value": [
+				248,
+				280
+			],
+			"section": "1. Material base",
+			"description": "Certificado de material — A36 mín 250MPa"
+		},
+		"tension_rotura_mpa": {
+			"type": "real",
+			"domain": [
+				350,
+				900
+			],
+			"value": [
+				400,
+				432
+			],
+			"section": "1. Material base",
+			"description": "Certificado de material — A36 400-550MPa"
+		},
+		"proceso_soldadura": {
+			"type": "set",
+			"domain": [
+				"SMAW",
+				"GMAW",
+				"GTAW",
+				"FCAW",
+				"SAW"
+			],
+			"value": [
+				"SMAW"
+			],
+			"section": "2. Proceso y consumibles",
+			"description": "Proceso calificado"
+		},
+		"clasificacion_electrodo": {
+			"type": "set",
+			"domain": [
+				"E6010",
+				"E6013",
+				"E7016",
+				"E7018",
+				"E8018-C3"
+			],
+			"value": [
+				"E7018"
+			],
+			"section": "2. Proceso y consumibles",
+			"description": "Electrodo seleccionado"
+		},
+		"diametro_electrodo_mm": {
+			"type": "real",
+			"domain": [
+				2,
+				8
+			],
+			"value": [
+				4.75,
+				4.85
+			],
+			"section": "2. Proceso y consumibles",
+			"description": "Micrómetro — nominal 4.76mm (3/16\")"
+		},
+		"bajo_hidrogeno": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				true
+			],
+			"section": "2. Proceso y consumibles",
+			"description": "E7018 es bajo hidrógeno — confirmado"
+		},
+		"tipo_corriente": {
+			"type": "set",
+			"domain": [
+				"AC",
+				"DCEP",
+				"DCEN"
+			],
+			"value": [
+				"DCEP"
+			],
+			"section": "2. Proceso y consumibles",
+			"description": "Polaridad inversa — requerida por E7018"
+		},
+		"amperaje_a": {
+			"type": "integer",
+			"domain": [
+				60,
+				350
+			],
+			"value": [
+				140,
+				150,
+				160
+			],
+			"section": "3. Parámetros eléctricos",
+			"description": "Amperímetro de pinza ±10A — E7018 Ø4.76mm"
+		},
+		"voltaje_v": {
+			"type": "real",
+			"domain": [
+				15,
+				40
+			],
+			"value": [
+				22,
+				24
+			],
+			"section": "3. Parámetros eléctricos",
+			"description": "Voltímetro digital ±1V"
+		},
+		"velocidad_avance_mm_min": {
+			"type": "real",
+			"domain": [
+				50,
+				500
+			],
+			"value": [
+				180,
+				220
+			],
+			"section": "3. Parámetros eléctricos",
+			"description": "Medición por longitud/tiempo ±20mm/min"
+		},
+		"heat_input_kj_mm": {
+			"type": "real",
+			"domain": [
+				0.1,
+				5
+			],
+			"value": [
+				0.85,
+				1.2
+			],
+			"section": "3. Parámetros eléctricos",
+			"description": "Calculado: (V × A × 60) / (vel × 1000)"
+		},
+		"temp_precalentamiento_c": {
+			"type": "real",
+			"domain": [
+				0,
+				400
+			],
+			"value": [
+				82,
+				98
+			],
+			"section": "4. Temperaturas",
+			"description": "Termómetro de contacto ±8°C — mínimo 80°C"
+		},
+		"temp_interpase_c": {
+			"type": "real",
+			"domain": [
+				0,
+				400
+			],
+			"value": [
+				210,
+				235
+			],
+			"section": "4. Temperaturas",
+			"description": "Termocupla tipo K ±12°C — máximo 260°C"
+		},
+		"pwht_aplicado": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				false
+			],
+			"section": "4. Temperaturas",
+			"description": "PWHT no requerido para este espesor"
+		},
+		"temp_pwht_c": {
+			"type": "real",
+			"domain": [
+				550,
+				750
+			],
+			"value": [
+				595,
+				635
+			],
+			"section": "4. Temperaturas",
+			"description": "Termocupla de horno ±20°C — solo si pwht_aplicado"
+		},
+		"tipo_junta": {
+			"type": "set",
+			"domain": [
+				"tope",
+				"filete",
+				"esquina",
+				"te"
+			],
+			"value": [
+				"tope"
+			],
+			"section": "5. Diseño de junta",
+			"description": "Junta a tope con penetración completa (CJP)"
+		},
+		"angulo_ranura_grad": {
+			"type": "real",
+			"domain": [
+				30,
+				90
+			],
+			"value": [
+				59,
+				61
+			],
+			"section": "5. Diseño de junta",
+			"description": "Goniómetro ±1° — nominal 60°"
+		},
+		"abertura_raiz_mm": {
+			"type": "real",
+			"domain": [
+				0,
+				8
+			],
+			"value": [
+				2,
+				3
+			],
+			"section": "5. Diseño de junta",
+			"description": "Galga de abertura ±0.5mm"
+		},
+		"cara_raiz_mm": {
+			"type": "real",
+			"domain": [
+				0,
+				4
+			],
+			"value": [
+				1.5,
+				2.5
+			],
+			"section": "5. Diseño de junta",
+			"description": "Galga de cara ±0.5mm"
+		},
+		"numero_pases": {
+			"type": "integer",
+			"domain": [
+				1,
+				30
+			],
+			"value": [
+				4,
+				5,
+				6
+			],
+			"section": "6. Ejecución",
+			"description": "Conteo de pases para espesor 20mm con E7018 Ø4.76"
+		},
+		"posicion_soldadura": {
+			"type": "set",
+			"domain": [
+				"1G",
+				"2G",
+				"3G",
+				"4G",
+				"1F",
+				"2F",
+				"3F",
+				"4F"
+			],
+			"value": [
+				"1G",
+				"2G"
+			],
+			"section": "6. Ejecución",
+			"description": "Posiciones calificadas en este PQR"
+		},
+		"progresion": {
+			"type": "set",
+			"domain": [
+				"ascendente",
+				"descendente"
+			],
+			"value": [
+				"ascendente"
+			],
+			"section": "6. Ejecución",
+			"description": "Progresión vertical ascendente"
+		},
+		"inspeccion_visual_ok": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				true
+			],
+			"section": "7. Control de calidad",
+			"description": "Inspección visual aprobada"
+		},
+		"ensayo_traccion_ok": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				true
+			],
+			"section": "7. Control de calidad",
+			"description": "Ensayo de tracción aprobado"
+		},
+		"ensayo_doblado_ok": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				true
+			],
+			"section": "7. Control de calidad",
+			"description": "Ensayo de doblado aprobado"
+		},
+		"resultado_end": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				true,
+				false
+			],
+			"section": "7. Control de calidad",
+			"description": "END (UT/RT) — resultado pendiente de informe"
+		},
+		"calificacion_aprobada": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				true,
+				false
+			],
+			"section": "7. Control de calidad",
+			"description": "Aprobación final — requiere todos los ensayos"
+		}
+	},
+	"expressions": [
+		{
+			"constraint": "tipo_material SUBSET_OF ['A36', 'A572Gr50', 'A588']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Materiales del grupo P1 — ambos calificados",
+			"expected": [
+				"A36",
+				"A572Gr50"
+			],
+			"variable": "tipo_material",
+			"_group": "Material base"
+		},
+		{
+			"constraint": "tipo_material SUBSET_OF ['A514', 'A588']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Contradicción: ninguno de {A36,A572Gr50} es acero de alta resistencia",
+			"expected": null,
+			"variable": "tipo_material"
+		},
+		{
+			"constraint": "espesor_mm IN [6.0, 40.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ESPESOR_MM"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 6
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 40
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Rango calificado: 6 a 40mm — sin estrechar",
+			"expected": [
+				19,
+				21
+			],
+			"variable": "espesor_mm"
+		},
+		{
+			"constraint": "espesor_mm IN [20.0, 40.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ESPESOR_MM"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 20
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 40
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por abajo: corta en 20.0mm",
+			"expected": [
+				20,
+				21
+			],
+			"variable": "espesor_mm"
+		},
+		{
+			"constraint": "limite_elastico_mpa IN [250.0, 700.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "LIMITE_ELASTICO_MPA"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 250
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 700
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Mínimo normativo 250MPa — estrecha por abajo",
+			"expected": [
+				250,
+				280
+			],
+			"variable": "limite_elastico_mpa"
+		},
+		{
+			"constraint": "clasificacion_electrodo SUBSET_OF ['E7016', 'E7018', 'E8018-C3']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Solo electrodos de alta resistencia — E7018 compatible",
+			"expected": [
+				"E7018"
+			],
+			"variable": "clasificacion_electrodo",
+			"_group": "Consumibles"
+		},
+		{
+			"constraint": "clasificacion_electrodo SUBSET_OF ['E6010', 'E6013']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Contradicción: E7018 no es electrodo de baja resistencia",
+			"expected": null,
+			"variable": "clasificacion_electrodo"
+		},
+		{
+			"constraint": "bajo_hidrogeno = true",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "BAJO_HIDROGENO"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "TRUE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Confirma: bajo hidrógeno requerido por norma para este acero",
+			"expected": [
+				true
+			],
+			"variable": "bajo_hidrogeno"
+		},
+		{
+			"constraint": "tipo_corriente SUBSET_OF ['DCEP', 'AC']",
+			"error": "Se esperaba fin de expresión",
+			"description": "E7018 admite DCEP o AC — DCEP es el valor actual",
+			"expected": [
+				"DCEP"
+			],
+			"variable": "tipo_corriente"
+		},
+		{
+			"constraint": "amperaje_a IN [130, 170]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "AMPERAJE_A"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 130
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 170
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Rango de WPS para E7018 Ø4.76mm — sin estrechar",
+			"expected": [
+				140,
+				150,
+				160
+			],
+			"variable": "amperaje_a",
+			"_group": "Parámetros eléctricos"
+		},
+		{
+			"constraint": "amperaje_a IN [150, 200]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "AMPERAJE_A"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 150
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 200
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por abajo: elimina 140A",
+			"expected": [
+				150,
+				160
+			],
+			"variable": "amperaje_a"
+		},
+		{
+			"constraint": "amperaje_a IN [200, 300]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "AMPERAJE_A"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 200
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 300
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Contradicción: {140,150,160} ∩ [200,300] = ∅",
+			"expected": null,
+			"variable": "amperaje_a"
+		},
+		{
+			"constraint": "voltaje_v IN [20.0, 26.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "VOLTAJE_V"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 20
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 26
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Rango de WPS para SMAW — sin estrechar",
+			"expected": [
+				22,
+				24
+			],
+			"variable": "voltaje_v"
+		},
+		{
+			"constraint": "heat_input_kj_mm IN [0.0, 3.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "HEAT_INPUT_KJ_MM"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 0
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 3
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Heat input dentro del límite AWS D1.1 — sin estrechar",
+			"expected": [
+				0.85,
+				1.2
+			],
+			"variable": "heat_input_kj_mm"
+		},
+		{
+			"constraint": "heat_input_kj_mm IN [0.0, 1.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "HEAT_INPUT_KJ_MM"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 0
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 1
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por arriba: corta en 1.0 kJ/mm",
+			"expected": [
+				0.85,
+				1
+			],
+			"variable": "heat_input_kj_mm"
+		},
+		{
+			"constraint": "temp_precalentamiento_c IN [80.0, 400.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "TEMP_PRECALENTAMIENTO_C"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 80
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 400
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Mínimo 80°C para A36 espesor >19mm — cumple",
+			"expected": [
+				82,
+				98
+			],
+			"variable": "temp_precalentamiento_c",
+			"_group": "Temperaturas"
+		},
+		{
+			"constraint": "temp_interpase_c IN [80.0, 260.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "TEMP_INTERPASE_C"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 80
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 260
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Máximo 260°C para A36 — sin estrechar",
+			"expected": [
+				210,
+				235
+			],
+			"variable": "temp_interpase_c"
+		},
+		{
+			"constraint": "temp_interpase_c IN [80.0, 220.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "TEMP_INTERPASE_C"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 80
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 220
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por arriba: corta en 220°C",
+			"expected": [
+				210,
+				220
+			],
+			"variable": "temp_interpase_c"
+		},
+		{
+			"constraint": "pwht_aplicado = false",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "PWHT_APLICADO"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "FALSE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "PWHT no requerido — confirma {false}",
+			"expected": [
+				false
+			],
+			"variable": "pwht_aplicado"
+		},
+		{
+			"constraint": "angulo_ranura_grad IN [55.0, 65.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ANGULO_RANURA_GRAD"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 55
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 65
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Tolerancia ±5° sobre nominal 60° — sin estrechar",
+			"expected": [
+				59,
+				61
+			],
+			"variable": "angulo_ranura_grad",
+			"_group": "Diseño de junta"
+		},
+		{
+			"constraint": "angulo_ranura_grad IN [60.0, 90.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ANGULO_RANURA_GRAD"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 60
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 90
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por abajo: corta en 60°",
+			"expected": [
+				60,
+				61
+			],
+			"variable": "angulo_ranura_grad"
+		},
+		{
+			"constraint": "abertura_raiz_mm IN [1.5, 4.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ABERTURA_RAIZ_MM"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 1.5
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 4
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Rango permitido — sin estrechar",
+			"expected": [
+				2,
+				3
+			],
+			"variable": "abertura_raiz_mm"
+		},
+		{
+			"constraint": "cara_raiz_mm IN [1.0, 2.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "CARA_RAIZ_MM"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 1
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 2
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por arriba: corta en 2.0mm",
+			"expected": [
+				1.5,
+				2
+			],
+			"variable": "cara_raiz_mm"
+		},
+		{
+			"constraint": "numero_pases IN [3, 8]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "NUMERO_PASES"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 3
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 8
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Rango esperado para 20mm con E7018 — sin estrechar",
+			"expected": [
+				4,
+				5,
+				6
+			],
+			"variable": "numero_pases",
+			"_group": "Ejecución"
+		},
+		{
+			"constraint": "numero_pases IN [5, 10]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "NUMERO_PASES"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 5
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 10
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por abajo: elimina 4 pases",
+			"expected": [
+				5,
+				6
+			],
+			"variable": "numero_pases"
+		},
+		{
+			"constraint": "posicion_soldadura SUBSET_OF ['1G', '2G', '3G', '4G']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Solo posiciones de tope — ambas calificadas",
+			"expected": [
+				"1G",
+				"2G"
+			],
+			"variable": "posicion_soldadura"
+		},
+		{
+			"constraint": "posicion_soldadura SUBSET_OF ['3G', '4G']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Contradicción: {1G,2G} ∩ {3G,4G} = ∅",
+			"expected": null,
+			"variable": "posicion_soldadura"
+		},
+		{
+			"constraint": "inspeccion_visual_ok = true",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "INSPECCION_VISUAL_OK"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "TRUE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Inspección visual aprobada — confirma",
+			"expected": [
+				true
+			],
+			"variable": "inspeccion_visual_ok",
+			"_group": "Control de calidad"
+		},
+		{
+			"constraint": "resultado_end = true",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "RESULTADO_END"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "TRUE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Estrecha: si END aprueba, value queda {true}",
+			"expected": [
+				true
+			],
+			"variable": "resultado_end"
+		},
+		{
+			"constraint": "resultado_end = false",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "RESULTADO_END"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "FALSE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Estrecha: si END rechaza, value queda {false}",
+			"expected": [
+				false
+			],
+			"variable": "resultado_end"
+		},
+		{
+			"constraint": "calificacion_aprobada = true",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "CALIFICACION_APROBADA"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "TRUE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Aprobación final — requiere convergencia de todos los ensayos",
+			"expected": [
+				true
+			],
+			"variable": "calificacion_aprobada"
+		}
+	]
+}

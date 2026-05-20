@@ -1,0 +1,28 @@
+{
+  "description": "Evaluacion de rendimiento academico",
+  "variables": [
+    { "name": "APROBADO",     "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "ASISTENCIA_OK","type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "PROYECTO_OK",  "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "EXAMEN_OK",    "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "BECA_ACTIVA",  "type": "boolean", "domain": [true, false], "value": [false] },
+    { "name": "CARRERA",  "type": "set", "domain": ["INFORMATICA","MECANICA","ELECTRICA","CIVIL"], "value": ["INFORMATICA"] },
+    { "name": "SEMESTRE", "type": "set", "domain": ["SEM1","SEM2","SEM3","SEM4","SEM5","SEM6","SEM7","SEM8"], "value": ["SEM5","SEM6"] },
+    { "name": "MODALIDAD","type": "set", "domain": ["PRESENCIAL","HIBRIDA","VIRTUAL"],             "value": ["HIBRIDA"] },
+    { "name": "NOTA_PARCIAL","type": "integer", "domain": [0,10,20,30,40,50,60,70,75,80,85,90,95,100], "value": [70,75,80] },
+    { "name": "CREDITOS",    "type": "integer", "domain": [60,70,80,90,100,110,120,130,140,150],   "value": [90,100,110] },
+    { "name": "PROMEDIO",    "type": "numeric", "domain": [0.0, 10.0], "value": [7.0, 8.5] }
+  ],
+  "expressions": [
+    { "constraints": ["APROBADO = true AND ASISTENCIA_OK = true"] },
+    { "constraints": ["PROYECTO_OK = true AND EXAMEN_OK = true"] },
+    { "constraints": ["BECA_ACTIVA = false"] },
+    { "constraints": ["CARRERA IN {INFORMATICA, MECANICA, ELECTRICA}"] },
+    { "constraints": ["SEMESTRE IN {SEM4, SEM5, SEM6, SEM7, SEM8}"] },
+    { "constraints": ["MODALIDAD IN {PRESENCIAL, HIBRIDA}"] },
+    { "constraints": ["NOTA_PARCIAL IN [60, 100]"] },
+    { "constraints": ["CREDITOS IN [80, 150]"] },
+    { "constraints": ["PROMEDIO IN [6.0, 10.0]"] },
+    { "constraints": ["NOTA_PARCIAL >= 70 AND PROMEDIO >= 7.0"] }
+  ]
+}

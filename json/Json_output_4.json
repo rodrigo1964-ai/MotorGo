@@ -1,0 +1,666 @@
+{
+		"variables": [
+			{
+				"name": "ENLACE_ACTIVO",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 0
+			},
+			{
+				"name": "FIREWALL_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 1
+			},
+			{
+				"name": "VPN_ACTIVA",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 2
+			},
+			{
+				"name": "DHCP_ACTIVO",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 3
+			},
+			{
+				"name": "REDUNDANCIA",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					false
+				],
+				"id": 4
+			},
+			{
+				"name": "PROTOCOLO",
+				"type": "set",
+				"domain": [
+					"TCP",
+					"UDP",
+					"HTTP",
+					"HTTPS"
+				],
+				"value": [
+					"TCP",
+					"HTTPS"
+				],
+				"id": 5
+			},
+			{
+				"name": "CLASE_IP",
+				"type": "set",
+				"domain": [
+					"CLASE_A",
+					"CLASE_B",
+					"CLASE_C"
+				],
+				"value": [
+					"CLASE_B"
+				],
+				"id": 6
+			},
+			{
+				"name": "TOPOLOGIA",
+				"type": "set",
+				"domain": [
+					"ESTRELLA",
+					"MALLA",
+					"ANILLO",
+					"BUS"
+				],
+				"value": [
+					"ESTRELLA"
+				],
+				"id": 7
+			},
+			{
+				"name": "ANCHO_BANDA",
+				"type": "integer",
+				"domain": [
+					10,
+					100,
+					500,
+					1000,
+					2000,
+					5000,
+					10000
+				],
+				"value": [
+					1000,
+					2000,
+					5000
+				],
+				"id": 8
+			},
+			{
+				"name": "LATENCIA",
+				"type": "integer",
+				"domain": [
+					1,
+					2,
+					5,
+					10,
+					15,
+					20,
+					25,
+					50,
+					100
+				],
+				"value": [
+					5,
+					10,
+					15
+				],
+				"id": 9
+			},
+			{
+				"name": "DISPONIBILIDAD",
+				"type": "numeric",
+				"domain": [
+					95,
+					100
+				],
+				"value": [
+					99,
+					99.9
+				],
+				"id": 10
+			}
+		],
+		"functions": [],
+		"constraints": [
+			{
+				"id": 0,
+				"expr": "ENLACE_ACTIVO = true AND FIREWALL_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ENLACE_ACTIVO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "FIREWALL_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					0,
+					1
+				],
+				"func_refs": []
+			},
+			{
+				"id": 1,
+				"expr": "VPN_ACTIVA = true",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "VPN_ACTIVA"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					2
+				],
+				"func_refs": []
+			},
+			{
+				"id": 2,
+				"expr": "DHCP_ACTIVO = true AND REDUNDANCIA = false",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "DHCP_ACTIVO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "REDUNDANCIA"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "FALSE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					3,
+					4
+				],
+				"func_refs": []
+			},
+			{
+				"id": 3,
+				"expr": "PROTOCOLO IN {TCP, HTTPS}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PROTOCOLO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TCP"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "HTTPS"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					5
+				],
+				"func_refs": []
+			},
+			{
+				"id": 4,
+				"expr": "CLASE_IP IN {CLASE_A, CLASE_B, CLASE_C}",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CLASE_IP"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "CLASE_A"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "CLASE_B"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "CLASE_C"
+					},
+					{
+						"id": 4,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3
+						]
+					},
+					{
+						"id": 5,
+						"type": "In",
+						"left": 0,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					6
+				],
+				"func_refs": []
+			},
+			{
+				"id": 5,
+				"expr": "TOPOLOGIA IN {ESTRELLA, MALLA}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "TOPOLOGIA"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "ESTRELLA"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "MALLA"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					7
+				],
+				"func_refs": []
+			},
+			{
+				"id": 6,
+				"expr": "ANCHO_BANDA IN [500, 10000]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ANCHO_BANDA"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 500
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 10000
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 7,
+				"expr": "LATENCIA IN [1, 20]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "LATENCIA"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 1
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 20
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					9
+				],
+				"func_refs": []
+			},
+			{
+				"id": 8,
+				"expr": "DISPONIBILIDAD IN [99.0, 100.0]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "DISPONIBILIDAD"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 99
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 100
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 9,
+				"expr": "ANCHO_BANDA >= 1000 AND LATENCIA <= 20",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ANCHO_BANDA"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 1000
+					},
+					{
+						"id": 2,
+						"type": "GreaterEq",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "LATENCIA"
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 20
+					},
+					{
+						"id": 5,
+						"type": "LessEq",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					8,
+					9
+				],
+				"func_refs": []
+			}
+		],
+		"adjacency": [
+			{
+				"var_id": 0,
+				"name": "ENLACE_ACTIVO",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 1,
+				"name": "FIREWALL_OK",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 2,
+				"name": "VPN_ACTIVA",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 3,
+				"name": "DHCP_ACTIVO",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 4,
+				"name": "REDUNDANCIA",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 5,
+				"name": "PROTOCOLO",
+				"constraint_ids": [
+					3
+				]
+			},
+			{
+				"var_id": 6,
+				"name": "CLASE_IP",
+				"constraint_ids": [
+					4
+				]
+			},
+			{
+				"var_id": 7,
+				"name": "TOPOLOGIA",
+				"constraint_ids": [
+					5
+				]
+			},
+			{
+				"var_id": 8,
+				"name": "ANCHO_BANDA",
+				"constraint_ids": [
+					6,
+					9
+				]
+			},
+			{
+				"var_id": 9,
+				"name": "LATENCIA",
+				"constraint_ids": [
+					7,
+					9
+				]
+			},
+			{
+				"var_id": 10,
+				"name": "DISPONIBILIDAD",
+				"constraint_ids": [
+					8
+				]
+			}
+		]
+	}

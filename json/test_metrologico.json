@@ -1,0 +1,186 @@
+{
+  "description": "Test metrológico: variables con incertidumbre discreta y continua",
+
+  "variables": {
+
+    "temperatura_c": {
+      "type":        "real",
+      "domain":      [80.0, 240.0],
+      "value":       [96.2, 97.5],
+      "description": "Termocupla tipo K — incertidumbre ±0.65°C"
+    },
+
+    "espesor_mm": {
+      "type":        "real",
+      "domain":      [0.0, 50.0],
+      "value":       [7.85, 8.15],
+      "description": "Micrómetro digital — incertidumbre ±0.15mm"
+    },
+
+    "espiras_ranura": {
+      "type":        "integer",
+      "domain":      [1, 100],
+      "value":       [20, 27, 35],
+      "description": "Espiras posibles según estructura de devanado"
+    },
+
+    "amperaje_smaw": {
+      "type":        "integer",
+      "domain":      [60, 200],
+      "value":       [118, 120, 122],
+      "description": "Amperímetro de pinza — incertidumbre ±2A"
+    },
+
+    "proceso_ok": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [true, false],
+      "description": "Estado del proceso — sin confirmar"
+    },
+
+    "electrodo_lh": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [true],
+      "description": "Electrodo bajo hidrógeno — confirmado"
+    },
+
+    "material": {
+      "type":        "set",
+      "domain":      ["a36", "a572", "a588", "a514"],
+      "value":       ["a36", "a572"],
+      "description": "Material identificado en campo"
+    }
+
+  },
+
+  "expressions": [
+
+    {
+      "variable":    "temperatura_c",
+      "constraint":  "temperatura_c IN [90.0, 100.0]",
+      "expected":    [96.2, 97.5],
+      "description": "Constraint laxa: value ya está contenido, sin estrechar"
+    },
+    {
+      "variable":    "temperatura_c",
+      "constraint":  "temperatura_c IN [97.0, 100.0]",
+      "expected":    [97.0, 97.5],
+      "description": "Estrecha por abajo: corta en 97.0"
+    },
+    {
+      "variable":    "temperatura_c",
+      "constraint":  "temperatura_c IN [80.0, 97.0]",
+      "expected":    [96.2, 97.0],
+      "description": "Estrecha por arriba: corta en 97.0"
+    },
+    {
+      "variable":    "temperatura_c",
+      "constraint":  "temperatura_c IN [100.0, 120.0]",
+      "expected":    null,
+      "description": "Contradicción: [96.2,97.5] ∩ [100,120] = ∅"
+    },
+
+    {
+      "variable":    "espesor_mm",
+      "constraint":  "espesor_mm IN [8.0, 50.0]",
+      "expected":    [8.0, 8.15],
+      "description": "Estrecha por abajo: corta en 8.0"
+    },
+    {
+      "variable":    "espesor_mm",
+      "constraint":  "espesor_mm IN [9.0, 12.0]",
+      "expected":    null,
+      "description": "Contradicción: [7.85,8.15] ∩ [9,12] = ∅"
+    },
+
+    {
+      "variable":    "espiras_ranura",
+      "constraint":  "espiras_ranura IN [20, 27]",
+      "expected":    [20, 27],
+      "description": "Elimina 35 del conjunto posible"
+    },
+    {
+      "variable":    "espiras_ranura",
+      "constraint":  "espiras_ranura IN [25, 30, 35]",
+      "expected":    [35],
+      "description": "Solo 35 es compatible"
+    },
+    {
+      "variable":    "espiras_ranura",
+      "constraint":  "espiras_ranura IN [1, 100]",
+      "expected":    [20, 27, 35],
+      "description": "Constraint es el domain completo: sin estrechar"
+    },
+    {
+      "variable":    "espiras_ranura",
+      "constraint":  "espiras_ranura IN [40, 50]",
+      "expected":    null,
+      "description": "Contradicción: {20,27,35} ∩ {40,50} = ∅"
+    },
+
+    {
+      "variable":    "amperaje_smaw",
+      "constraint":  "amperaje_smaw IN [115, 118, 120]",
+      "expected":    [118, 120],
+      "description": "Elimina 122"
+    },
+    {
+      "variable":    "amperaje_smaw",
+      "constraint":  "amperaje_smaw IN [120, 125]",
+      "expected":    [120],
+      "description": "Solo 120 es compatible"
+    },
+    {
+      "variable":    "amperaje_smaw",
+      "constraint":  "amperaje_smaw IN [130, 150]",
+      "expected":    null,
+      "description": "Contradicción: {118,120,122} ∩ {130..150} = ∅"
+    },
+
+    {
+      "variable":    "proceso_ok",
+      "constraint":  "proceso_ok = true",
+      "expected":    [true],
+      "description": "Estrecha boolean indeterminado a {true}"
+    },
+    {
+      "variable":    "proceso_ok",
+      "constraint":  "proceso_ok = false",
+      "expected":    [false],
+      "description": "Estrecha boolean indeterminado a {false}"
+    },
+    {
+      "variable":    "electrodo_lh",
+      "constraint":  "electrodo_lh = true",
+      "expected":    [true],
+      "description": "Confirma: {true} ∩ {true} = {true}"
+    },
+    {
+      "variable":    "electrodo_lh",
+      "constraint":  "electrodo_lh = false",
+      "expected":    null,
+      "description": "Contradicción: {true} ∩ {false} = ∅"
+    },
+
+    {
+      "variable":    "material",
+      "constraint":  "material SUBSET_OF ['a36', 'a572', 'a514']",
+      "expected":    ["a36", "a572"],
+      "description": "Sin estrechar: value ya es subconjunto"
+    },
+    {
+      "variable":    "material",
+      "constraint":  "material SUBSET_OF ['a36', 'a514']",
+      "expected":    ["a36"],
+      "description": "Elimina a572: solo a36 está en ambos"
+    },
+    {
+      "variable":    "material",
+      "constraint":  "material SUBSET_OF ['a588', 'a514']",
+      "expected":    null,
+      "description": "Contradicción: {a36,a572} ∩ {a588,a514} = ∅"
+    }
+
+  ]
+}

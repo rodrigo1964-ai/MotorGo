@@ -1,0 +1,327 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "furanos_vida_papel",
+    "norma": "IEEE C57.140 / IEC 61198 / Chendong-Stebbins-De Pablo",
+    "descripcion": "Analisis de furanos disueltos en el aceite (principal: 2-furfuraldehido F2FAL) para estimar el grado de polimerizacion (DP) del papel celulosico y la vida residual del aislamiento solido. Tres correlaciones empiricas y discriminacion activo/historico",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte II, Seccion 9"
+  },
+  "variables": [
+    {
+      "name": "F2FAL_PPM",
+      "type": "numeric",
+      "domain": [0.0, 50.0],
+      "value": [0.0, 0.5],
+      "section": "concentraciones",
+      "description": "Concentracion de 2-furfuraldehido en ppm (principal indicador)"
+    },
+    {
+      "name": "HUMEDAD_PPM",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [5.0, 20.0],
+      "section": "concentraciones",
+      "description": "Humedad disuelta en aceite, en ppm"
+    },
+    {
+      "name": "DP_CHENDONG",
+      "type": "numeric",
+      "domain": [100.0, 1500.0],
+      "value": [800.0, 1500.0],
+      "section": "predicados_derivados",
+      "description": "DP estimado por correlacion de Chendong: DP = (1.51 - log10(F2FAL)) / 0.0035"
+    },
+    {
+      "name": "DP_DE_PABLO",
+      "type": "numeric",
+      "domain": [100.0, 1500.0],
+      "value": [800.0, 1500.0],
+      "section": "predicados_derivados",
+      "description": "DP estimado por correlacion de De Pablo: DP = 800 / (0.186*F2FAL + 1)"
+    },
+    {
+      "name": "DP_STEBBINS",
+      "type": "numeric",
+      "domain": [100.0, 1500.0],
+      "value": [800.0, 1500.0],
+      "section": "predicados_derivados",
+      "description": "DP estimado por correlacion de Stebbins-Burton (corrige por humedad)"
+    },
+    {
+      "name": "DP_PROMEDIO",
+      "type": "numeric",
+      "domain": [100.0, 1500.0],
+      "value": [800.0, 1500.0],
+      "section": "predicados_derivados",
+      "description": "DP promedio de Chendong y De Pablo"
+    },
+    {
+      "name": "DP_MINIMO",
+      "type": "numeric",
+      "domain": [100.0, 1500.0],
+      "value": [800.0, 1500.0],
+      "section": "predicados_derivados",
+      "description": "DP minimo entre las tres correlaciones (conservador)"
+    },
+    {
+      "name": "ACEITE_TRATADO_HIST",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "validez",
+      "description": "El aceite tiene historial de tratamiento (regeneracion, reemplazo) registrado"
+    },
+    {
+      "name": "ANOS_DESDE_TRATAMIENTO",
+      "type": "numeric",
+      "domain": [0.0, 50.0],
+      "value": [0.0, 50.0],
+      "section": "validez",
+      "description": "Anos transcurridos desde el ultimo tratamiento del aceite (los furanos pueden haber sido removidos parcialmente)"
+    },
+    {
+      "name": "FURANOS_VALIDOS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "validez",
+      "description": "Guarda de validez: aceite sin historial de tratamiento, los furanos son representativos de la degradacion real"
+    },
+    {
+      "name": "FURANOS_INVALIDOS_POR_TRATAMIENTO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "validez",
+      "description": "Furanos invalidos: tratamiento reciente (< 10 anos) puede haber removido furanos, subestimando degradacion"
+    },
+    {
+      "name": "EST_PAPEL_SANO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "clasificadores",
+      "description": "Estado del papel sano: DP_MINIMO > 800 (papel nuevo o poco envejecido)"
+    },
+    {
+      "name": "EST_PAPEL_ENVEJ_NORMAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Envejecimiento normal: DP_MINIMO en (600, 800]"
+    },
+    {
+      "name": "EST_PAPEL_ENVEJ_AVANZADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Envejecimiento avanzado: DP_MINIMO en (400, 600]"
+    },
+    {
+      "name": "EST_PAPEL_FIN_VIDA_CERCA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Cerca del fin de vida: DP_MINIMO en (200, 400]"
+    },
+    {
+      "name": "EST_PAPEL_FIN_VIDA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Fin de vida del papel: DP_MINIMO <= 200 (perdida de resistencia mecanica, no soporta cortocircuitos)"
+    },
+    {
+      "name": "EST_PAPEL_INDETERM_TRATADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado del papel indeterminado por tratamiento previo del aceite"
+    },
+    {
+      "name": "DEGRADACION_ACTIVA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "proceso",
+      "description": "Degradacion activa: R_CO < 5 y tasa CO > 30 ppm/mes (combinacion con DGA)"
+    },
+    {
+      "name": "DEGRADACION_HISTORICA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "proceso",
+      "description": "Degradacion historica (no activa): papel envejecido pero CO/CO2 estable"
+    },
+    {
+      "name": "A_MONITOREO_PAPEL_NORMAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "acciones",
+      "description": "Accion: monitoreo papel normal. Inferido cuando papel sano o envejecimiento normal"
+    },
+    {
+      "name": "A_SEGUIMIENTO_INTENSIFICADO_PAPEL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: seguimiento intensificado del papel. Inferido cuando envejecimiento avanzado sin degradacion activa"
+    },
+    {
+      "name": "A_INTERVENCION_PUNTO_CALIENTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: intervencion ante punto caliente. Inferido cuando degradacion activa detectada"
+    },
+    {
+      "name": "A_PLANIFICAR_REEMPLAZO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: planificar reemplazo del transformador. Inferido cuando fin de vida cerca"
+    },
+    {
+      "name": "A_REEMPLAZO_PRIORITARIO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: reemplazo prioritario. Inferido cuando fin de vida del papel"
+    },
+    {
+      "name": "A_VERIFICAR_TRATAMIENTO_REEVALUAR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: verificar historial de tratamiento y reevaluar. Inferido cuando furanos invalidos por tratamiento"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "NOT ACEITE_TRATADO_HIST AND FURANOS_VALIDOS"
+      ],
+      "_group": "guarda_validez",
+      "description": "Furanos validos: aceite sin tratamiento previo"
+    },
+    {
+      "constraints": [
+        "ACEITE_TRATADO_HIST AND ANOS_DESDE_TRATAMIENTO < 10.0 AND FURANOS_INVALIDOS_POR_TRATAMIENTO"
+      ],
+      "_group": "guarda_validez",
+      "description": "Furanos invalidos: tratamiento reciente puede haber removido furanos"
+    },
+    {
+      "constraints": [
+        "FURANOS_VALIDOS AND DP_MINIMO > 800.0 AND EST_PAPEL_SANO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Papel sano"
+    },
+    {
+      "constraints": [
+        "FURANOS_VALIDOS AND DP_MINIMO > 600.0 AND DP_MINIMO <= 800.0 AND EST_PAPEL_ENVEJ_NORMAL"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Envejecimiento normal"
+    },
+    {
+      "constraints": [
+        "FURANOS_VALIDOS AND DP_MINIMO > 400.0 AND DP_MINIMO <= 600.0 AND EST_PAPEL_ENVEJ_AVANZADO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Envejecimiento avanzado"
+    },
+    {
+      "constraints": [
+        "FURANOS_VALIDOS AND DP_MINIMO > 200.0 AND DP_MINIMO <= 400.0 AND EST_PAPEL_FIN_VIDA_CERCA"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Fin de vida cerca"
+    },
+    {
+      "constraints": [
+        "FURANOS_VALIDOS AND DP_MINIMO <= 200.0 AND EST_PAPEL_FIN_VIDA"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Fin de vida del papel"
+    },
+    {
+      "constraints": [
+        "FURANOS_INVALIDOS_POR_TRATAMIENTO AND EST_PAPEL_INDETERM_TRATADO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Papel indeterminado por tratamiento previo"
+    },
+    {
+      "constraints": [
+        "(EST_PAPEL_ENVEJ_AVANZADO OR EST_PAPEL_FIN_VIDA_CERCA) AND NOT DEGRADACION_ACTIVA AND DEGRADACION_HISTORICA"
+      ],
+      "_group": "proceso",
+      "description": "Degradacion historica (no activa): envejecimiento avanzado pero sin signos de ataque actual"
+    },
+    {
+      "constraints": [
+        "(EST_PAPEL_SANO OR EST_PAPEL_ENVEJ_NORMAL) AND A_MONITOREO_PAPEL_NORMAL"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion monitoreo normal: papel sano o envejecimiento normal"
+    },
+    {
+      "constraints": [
+        "EST_PAPEL_ENVEJ_AVANZADO AND NOT DEGRADACION_ACTIVA AND A_SEGUIMIENTO_INTENSIFICADO_PAPEL"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion seguimiento intensificado: envejecimiento avanzado sin actividad"
+    },
+    {
+      "constraints": [
+        "DEGRADACION_ACTIVA AND A_INTERVENCION_PUNTO_CALIENTE"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion intervencion: degradacion activa indica punto caliente"
+    },
+    {
+      "constraints": [
+        "EST_PAPEL_FIN_VIDA_CERCA AND A_PLANIFICAR_REEMPLAZO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion planificar reemplazo: fin de vida cerca"
+    },
+    {
+      "constraints": [
+        "EST_PAPEL_FIN_VIDA AND A_REEMPLAZO_PRIORITARIO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion reemplazo prioritario: fin de vida del papel"
+    },
+    {
+      "constraints": [
+        "EST_PAPEL_INDETERM_TRATADO AND A_VERIFICAR_TRATAMIENTO_REEVALUAR"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion verificar tratamiento y reevaluar: estado indeterminado"
+    },
+    {
+      "constraints": [
+        "F2FAL_PPM IN [0.0, 50.0] AND HUMEDAD_PPM IN [0.0, 100.0] AND DP_MINIMO IN [100.0, 1500.0] AND ANOS_DESDE_TRATAMIENTO IN [0.0, 50.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para variables numericas"
+    }
+  ],
+  "functions": []
+}

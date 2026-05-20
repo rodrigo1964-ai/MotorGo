@@ -1,0 +1,684 @@
+{
+	"description": "Test metrológico: variables con incertidumbre discreta y continua",
+	"variables": {
+		"temperatura_c": {
+			"type": "real",
+			"domain": [
+				80,
+				240
+			],
+			"value": [
+				96.2,
+				97.5
+			],
+			"description": "Termocupla tipo K — incertidumbre ±0.65°C"
+		},
+		"espesor_mm": {
+			"type": "real",
+			"domain": [
+				0,
+				50
+			],
+			"value": [
+				7.85,
+				8.15
+			],
+			"description": "Micrómetro digital — incertidumbre ±0.15mm"
+		},
+		"espiras_ranura": {
+			"type": "integer",
+			"domain": [
+				1,
+				100
+			],
+			"value": [
+				20,
+				27,
+				35
+			],
+			"description": "Espiras posibles según estructura de devanado"
+		},
+		"amperaje_smaw": {
+			"type": "integer",
+			"domain": [
+				60,
+				200
+			],
+			"value": [
+				118,
+				120,
+				122
+			],
+			"description": "Amperímetro de pinza — incertidumbre ±2A"
+		},
+		"proceso_ok": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				true,
+				false
+			],
+			"description": "Estado del proceso — sin confirmar"
+		},
+		"electrodo_lh": {
+			"type": "boolean",
+			"domain": [
+				true,
+				false
+			],
+			"value": [
+				true
+			],
+			"description": "Electrodo bajo hidrógeno — confirmado"
+		},
+		"material": {
+			"type": "set",
+			"domain": [
+				"a36",
+				"a572",
+				"a588",
+				"a514"
+			],
+			"value": [
+				"a36",
+				"a572"
+			],
+			"description": "Material identificado en campo"
+		}
+	},
+	"expressions": [
+		{
+			"constraint": "temperatura_c IN [90.0, 100.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "TEMPERATURA_C"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 90
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 100
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Constraint laxa: value ya está contenido, sin estrechar",
+			"expected": [
+				96.2,
+				97.5
+			],
+			"variable": "temperatura_c"
+		},
+		{
+			"constraint": "temperatura_c IN [97.0, 100.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "TEMPERATURA_C"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 97
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 100
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por abajo: corta en 97.0",
+			"expected": [
+				97,
+				97.5
+			],
+			"variable": "temperatura_c"
+		},
+		{
+			"constraint": "temperatura_c IN [80.0, 97.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "TEMPERATURA_C"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 80
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 97
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por arriba: corta en 97.0",
+			"expected": [
+				96.2,
+				97
+			],
+			"variable": "temperatura_c"
+		},
+		{
+			"constraint": "temperatura_c IN [100.0, 120.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "TEMPERATURA_C"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 100
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 120
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Contradicción: [96.2,97.5] ∩ [100,120] = ∅",
+			"expected": null,
+			"variable": "temperatura_c"
+		},
+		{
+			"constraint": "espesor_mm IN [8.0, 50.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ESPESOR_MM"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 8
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 50
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Estrecha por abajo: corta en 8.0",
+			"expected": [
+				8,
+				8.15
+			],
+			"variable": "espesor_mm"
+		},
+		{
+			"constraint": "espesor_mm IN [9.0, 12.0]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ESPESOR_MM"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 9
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 12
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Contradicción: [7.85,8.15] ∩ [9,12] = ∅",
+			"expected": null,
+			"variable": "espesor_mm"
+		},
+		{
+			"constraint": "espiras_ranura IN [20, 27]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ESPIRAS_RANURA"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 20
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 27
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Elimina 35 del conjunto posible",
+			"expected": [
+				20,
+				27
+			],
+			"variable": "espiras_ranura"
+		},
+		{
+			"constraint": "espiras_ranura IN [25, 30, 35]",
+			"error": "Se esperaba \"]\" o \")\" para cerrar intervalo",
+			"description": "Solo 35 es compatible",
+			"expected": [
+				35
+			],
+			"variable": "espiras_ranura"
+		},
+		{
+			"constraint": "espiras_ranura IN [1, 100]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ESPIRAS_RANURA"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 1
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 100
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Constraint es el domain completo: sin estrechar",
+			"expected": [
+				20,
+				27,
+				35
+			],
+			"variable": "espiras_ranura"
+		},
+		{
+			"constraint": "espiras_ranura IN [40, 50]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ESPIRAS_RANURA"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 40
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 50
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Contradicción: {20,27,35} ∩ {40,50} = ∅",
+			"expected": null,
+			"variable": "espiras_ranura"
+		},
+		{
+			"constraint": "amperaje_smaw IN [115, 118, 120]",
+			"error": "Se esperaba \"]\" o \")\" para cerrar intervalo",
+			"description": "Elimina 122",
+			"expected": [
+				118,
+				120
+			],
+			"variable": "amperaje_smaw"
+		},
+		{
+			"constraint": "amperaje_smaw IN [120, 125]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "AMPERAJE_SMAW"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 120
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 125
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Solo 120 es compatible",
+			"expected": [
+				120
+			],
+			"variable": "amperaje_smaw"
+		},
+		{
+			"constraint": "amperaje_smaw IN [130, 150]",
+			"root": 4,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "AMPERAJE_SMAW"
+				},
+				{
+					"id": 1,
+					"type": "Number",
+					"value": 130
+				},
+				{
+					"id": 2,
+					"type": "Number",
+					"value": 150
+				},
+				{
+					"id": 3,
+					"type": "Interval",
+					"lo": 1,
+					"hi": 2,
+					"lo_open": false,
+					"hi_open": false
+				},
+				{
+					"id": 4,
+					"type": "In",
+					"left": 0,
+					"right": 3
+				}
+			],
+			"description": "Contradicción: {118,120,122} ∩ {130..150} = ∅",
+			"expected": null,
+			"variable": "amperaje_smaw"
+		},
+		{
+			"constraint": "proceso_ok = true",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "PROCESO_OK"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "TRUE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Estrecha boolean indeterminado a {true}",
+			"expected": [
+				true
+			],
+			"variable": "proceso_ok"
+		},
+		{
+			"constraint": "proceso_ok = false",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "PROCESO_OK"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "FALSE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Estrecha boolean indeterminado a {false}",
+			"expected": [
+				false
+			],
+			"variable": "proceso_ok"
+		},
+		{
+			"constraint": "electrodo_lh = true",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ELECTRODO_LH"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "TRUE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Confirma: {true} ∩ {true} = {true}",
+			"expected": [
+				true
+			],
+			"variable": "electrodo_lh"
+		},
+		{
+			"constraint": "electrodo_lh = false",
+			"root": 2,
+			"nodes": [
+				{
+					"id": 0,
+					"type": "Variable",
+					"name": "ELECTRODO_LH"
+				},
+				{
+					"id": 1,
+					"type": "Variable",
+					"name": "FALSE"
+				},
+				{
+					"id": 2,
+					"type": "Equals",
+					"left": 0,
+					"right": 1
+				}
+			],
+			"description": "Contradicción: {true} ∩ {false} = ∅",
+			"expected": null,
+			"variable": "electrodo_lh"
+		},
+		{
+			"constraint": "material SUBSET_OF ['a36', 'a572', 'a514']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Sin estrechar: value ya es subconjunto",
+			"expected": [
+				"a36",
+				"a572"
+			],
+			"variable": "material"
+		},
+		{
+			"constraint": "material SUBSET_OF ['a36', 'a514']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Elimina a572: solo a36 está en ambos",
+			"expected": [
+				"a36"
+			],
+			"variable": "material"
+		},
+		{
+			"constraint": "material SUBSET_OF ['a588', 'a514']",
+			"error": "Se esperaba fin de expresión",
+			"description": "Contradicción: {a36,a572} ∩ {a588,a514} = ∅",
+			"expected": null,
+			"variable": "material"
+		}
+	]
+}

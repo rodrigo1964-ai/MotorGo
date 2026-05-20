@@ -1,0 +1,348 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "fra_respuesta_frecuencia",
+    "norma": "IEEE C57.149 / IEC 60076-18 / CIGRE Brochure 342",
+    "descripcion": "Analisis de respuesta en frecuencia (FRA): comparacion de la traza actual contra referencia en tres bandas (LF, MF, HF) para detectar perdida de prensado del nucleo, defectos mecanicos del bobinado y desplazamientos interdevanado",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte I, Seccion 4"
+  },
+  "variables": [
+    {
+      "name": "CC_LF",
+      "type": "numeric",
+      "domain": [0.0, 1.0],
+      "value": [0.999, 1.0],
+      "section": "predicados_derivados",
+      "description": "Coeficiente de correlacion cruzada en banda baja (20 Hz - 2 kHz): nucleo, perdida de prensado"
+    },
+    {
+      "name": "CC_MF",
+      "type": "numeric",
+      "domain": [0.0, 1.0],
+      "value": [0.999, 1.0],
+      "section": "predicados_derivados",
+      "description": "Coeficiente de correlacion cruzada en banda media (2 kHz - 20 kHz): desplazamientos interdevanado"
+    },
+    {
+      "name": "CC_HF",
+      "type": "numeric",
+      "domain": [0.0, 1.0],
+      "value": [0.999, 1.0],
+      "section": "predicados_derivados",
+      "description": "Coeficiente de correlacion cruzada en banda alta (20 kHz - 1 MHz): defectos mecanicos del bobinado"
+    },
+    {
+      "name": "FRA_REF_DISPONIBLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "validez",
+      "description": "Existe traza FRA de referencia para comparar (huella digital previa o medicion de fabrica)"
+    },
+    {
+      "name": "CONDICIONES_REPRODUCIBLES",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "validez",
+      "description": "Las condiciones de medicion son reproducibles (mismo punto de conexion, temperatura comparable, transformador sin tension, OLTC en misma posicion que referencia)"
+    },
+    {
+      "name": "FRA_DIAGNOSTICABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "validez",
+      "description": "Guarda de validez: FRA_REF_DISPONIBLE y CONDICIONES_REPRODUCIBLES. Si falla, ningun clasificador del metodo debe activarse"
+    },
+    {
+      "name": "FRA_NO_DIAGNOSTICABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "validez",
+      "description": "Negacion de FRA_DIAGNOSTICABLE: no hay referencia o las condiciones no son reproducibles"
+    },
+    {
+      "name": "BANDA_ANOMALA_LF",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Banda LF anomala: FRA diagnosticable y CC_LF < 0.99"
+    },
+    {
+      "name": "BANDA_ANOMALA_MF",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Banda MF anomala: FRA diagnosticable y CC_MF < 0.99"
+    },
+    {
+      "name": "BANDA_ANOMALA_HF",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Banda HF anomala: FRA diagnosticable y CC_HF < 0.99"
+    },
+    {
+      "name": "BANDA_CRITICA_LF",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Banda LF critica: FRA diagnosticable y CC_LF < 0.90"
+    },
+    {
+      "name": "BANDA_CRITICA_MF",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Banda MF critica: FRA diagnosticable y CC_MF < 0.90"
+    },
+    {
+      "name": "BANDA_CRITICA_HF",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Banda HF critica: FRA diagnosticable y CC_HF < 0.90"
+    },
+    {
+      "name": "TODAS_BANDAS_NORMALES",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "clasificadores",
+      "description": "Todas las bandas en correlacion > 0.999 (FRA sin anomalias detectables)"
+    },
+    {
+      "name": "H_PERDIDA_PRENSADO_NUCLEO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: perdida de prensado del nucleo. Se infiere cuando BANDA_ANOMALA_LF y NO BANDA_ANOMALA_HF (anomalia localizada en baja frecuencia)"
+    },
+    {
+      "name": "H_DEFECTO_MEC_BOBINADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: defecto mecanico del bobinado (deformacion, desplazamiento axial o radial). Se infiere cuando BANDA_ANOMALA_HF y NO BANDA_ANOMALA_LF"
+    },
+    {
+      "name": "H_DESPLAZAMIENTO_INTER_DEVANADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: desplazamiento interdevanado (entre AT y BT). Se infiere cuando BANDA_ANOMALA_MF y NO BANDA_ANOMALA_HF"
+    },
+    {
+      "name": "H_FALLA_COMPLEJA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: falla mecanica compleja (multiples modos simultaneos). Se infiere cuando hay banda critica HF y critica en LF o MF"
+    },
+    {
+      "name": "MIN_CC_INTERVALO_SEGUIMIENTO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "min CC entre todas las bandas cae en (0.99, 0.999): seguimiento recomendado a 12 meses"
+    },
+    {
+      "name": "MIN_CC_INTERVALO_INVESTIGACION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "min CC entre todas las bandas cae en (0.90, 0.99): investigacion de tendencia recomendada"
+    },
+    {
+      "name": "A_FRA_NO_CONCLUYENTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: ensayo FRA no concluyente. Inferido cuando FRA_NO_DIAGNOSTICABLE"
+    },
+    {
+      "name": "A_MONITOREO_NORMAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: continuar monitoreo normal. Inferido cuando TODAS_BANDAS_NORMALES"
+    },
+    {
+      "name": "A_SEGUIMIENTO_12M",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: seguimiento intensificado a 12 meses. Inferido cuando MIN_CC_INTERVALO_SEGUIMIENTO"
+    },
+    {
+      "name": "A_INVESTIGAR_TENDENCIA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: investigar tendencia. Inferido cuando MIN_CC_INTERVALO_INVESTIGACION"
+    },
+    {
+      "name": "A_SALIDA_DIAGNOSTICO_MAYOR_FRA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: sacar de servicio para diagnostico mayor. Inferido cuando H_FALLA_COMPLEJA o cualquier banda critica"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "FRA_REF_DISPONIBLE AND CONDICIONES_REPRODUCIBLES AND FRA_DIAGNOSTICABLE"
+      ],
+      "_group": "guarda_validez",
+      "description": "FRA diagnosticable solo si hay referencia disponible y condiciones reproducibles"
+    },
+    {
+      "constraints": [
+        "(NOT FRA_REF_DISPONIBLE OR NOT CONDICIONES_REPRODUCIBLES) AND FRA_NO_DIAGNOSTICABLE"
+      ],
+      "_group": "guarda_validez",
+      "description": "FRA no diagnosticable: falta referencia o condiciones no reproducibles"
+    },
+    {
+      "constraints": [
+        "FRA_DIAGNOSTICABLE AND CC_LF < 0.99 AND BANDA_ANOMALA_LF"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "BandaAnomala(LF) se dispara con FRA valida y CC_LF < 0.99"
+    },
+    {
+      "constraints": [
+        "FRA_DIAGNOSTICABLE AND CC_MF < 0.99 AND BANDA_ANOMALA_MF"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "BandaAnomala(MF) se dispara con FRA valida y CC_MF < 0.99"
+    },
+    {
+      "constraints": [
+        "FRA_DIAGNOSTICABLE AND CC_HF < 0.99 AND BANDA_ANOMALA_HF"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "BandaAnomala(HF) se dispara con FRA valida y CC_HF < 0.99"
+    },
+    {
+      "constraints": [
+        "FRA_DIAGNOSTICABLE AND CC_LF < 0.90 AND BANDA_CRITICA_LF"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "BandaCritica(LF) se dispara con FRA valida y CC_LF < 0.90"
+    },
+    {
+      "constraints": [
+        "FRA_DIAGNOSTICABLE AND CC_MF < 0.90 AND BANDA_CRITICA_MF"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "BandaCritica(MF) se dispara con FRA valida y CC_MF < 0.90"
+    },
+    {
+      "constraints": [
+        "FRA_DIAGNOSTICABLE AND CC_HF < 0.90 AND BANDA_CRITICA_HF"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "BandaCritica(HF) se dispara con FRA valida y CC_HF < 0.90"
+    },
+    {
+      "constraints": [
+        "FRA_DIAGNOSTICABLE AND CC_LF > 0.999 AND CC_MF > 0.999 AND CC_HF > 0.999 AND TODAS_BANDAS_NORMALES"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "TodasBandasNormales: todas las correlaciones cruzadas por encima de 0.999"
+    },
+    {
+      "constraints": [
+        "BANDA_ANOMALA_LF AND NOT BANDA_ANOMALA_HF AND H_PERDIDA_PRENSADO_NUCLEO"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Perdida de prensado del nucleo: anomalia en LF pero HF intacta"
+    },
+    {
+      "constraints": [
+        "BANDA_ANOMALA_HF AND NOT BANDA_ANOMALA_LF AND H_DEFECTO_MEC_BOBINADO"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Defecto mecanico del bobinado: anomalia en HF pero LF intacta"
+    },
+    {
+      "constraints": [
+        "BANDA_ANOMALA_MF AND NOT BANDA_ANOMALA_HF AND H_DESPLAZAMIENTO_INTER_DEVANADO"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Desplazamiento entre devanados AT-BT: anomalia en MF sin afectar HF"
+    },
+    {
+      "constraints": [
+        "BANDA_CRITICA_HF AND (BANDA_CRITICA_LF OR BANDA_CRITICA_MF) AND H_FALLA_COMPLEJA"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Falla mecanica compleja: HF critica acompanada de otra banda critica"
+    },
+    {
+      "constraints": [
+        "FRA_NO_DIAGNOSTICABLE AND A_FRA_NO_CONCLUYENTE"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion: declarar el ensayo no concluyente cuando falta validez"
+    },
+    {
+      "constraints": [
+        "TODAS_BANDAS_NORMALES AND A_MONITOREO_NORMAL"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion: monitoreo normal cuando FRA esta limpio"
+    },
+    {
+      "constraints": [
+        "MIN_CC_INTERVALO_SEGUIMIENTO AND A_SEGUIMIENTO_12M"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion: seguimiento a 12 meses si la peor banda esta entre 0.99 y 0.999"
+    },
+    {
+      "constraints": [
+        "MIN_CC_INTERVALO_INVESTIGACION AND A_INVESTIGAR_TENDENCIA"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion: investigar tendencia si la peor banda esta entre 0.90 y 0.99"
+    },
+    {
+      "constraints": [
+        "(H_FALLA_COMPLEJA OR BANDA_CRITICA_LF OR BANDA_CRITICA_MF OR BANDA_CRITICA_HF) AND A_SALIDA_DIAGNOSTICO_MAYOR_FRA"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion: sacar de servicio para diagnostico mayor ante falla compleja o cualquier banda critica"
+    },
+    {
+      "constraints": [
+        "CC_LF IN [0.0, 1.0] AND CC_MF IN [0.0, 1.0] AND CC_HF IN [0.0, 1.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para los coeficientes de correlacion (cota natural [0,1])"
+    }
+  ],
+  "functions": []
+}

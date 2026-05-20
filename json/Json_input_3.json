@@ -1,0 +1,28 @@
+{
+  "description": "Gestion de inventario de almacen",
+  "variables": [
+    { "name": "STOCK_OK",        "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "PEDIDO_URGENTE",  "type": "boolean", "domain": [true, false], "value": [false] },
+    { "name": "CALIDAD_OK",      "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "PROVEEDOR_ACTIVO","type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "DEVOLUCION",      "type": "boolean", "domain": [true, false], "value": [false] },
+    { "name": "CATEGORIA",  "type": "set",     "domain": ["CAT_A","CAT_B","CAT_C"],                          "value": ["CAT_A"] },
+    { "name": "ESTADO",     "type": "set",     "domain": ["RECIBIDO","INSPECCIONADO","LIBERADO","RECHAZADO"], "value": ["LIBERADO"] },
+    { "name": "ALMACEN",    "type": "set",     "domain": ["NORTE","SUR","CENTRAL"],                          "value": ["CENTRAL"] },
+    { "name": "CANTIDAD",      "type": "integer", "domain": [10,20,50,100,200,500,1000], "value": [100,200,500] },
+    { "name": "DIAS_ENTREGA",  "type": "integer", "domain": [1,2,3,5,7,10,15,20,30],   "value": [3,5,7] },
+    { "name": "PRECIO",        "type": "numeric", "domain": [1.0, 1000.0],             "value": [50.0, 150.0] }
+  ],
+  "expressions": [
+    { "constraints": ["STOCK_OK = true AND CALIDAD_OK = true"] },
+    { "constraints": ["PEDIDO_URGENTE = false"] },
+    { "constraints": ["PROVEEDOR_ACTIVO = true AND DEVOLUCION = false"] },
+    { "constraints": ["CATEGORIA IN {CAT_A, CAT_B}"] },
+    { "constraints": ["ESTADO IN {INSPECCIONADO, LIBERADO}"] },
+    { "constraints": ["ALMACEN IN {NORTE, CENTRAL}"] },
+    { "constraints": ["CANTIDAD IN [50, 1000]"] },
+    { "constraints": ["DIAS_ENTREGA IN [1, 10]"] },
+    { "constraints": ["PRECIO IN [10.0, 500.0]"] },
+    { "constraints": ["CANTIDAD >= 100 AND DIAS_ENTREGA <= 10"] }
+  ]
+}

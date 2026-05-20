@@ -1,0 +1,29 @@
+{
+  "description": "Control de acceso a edificio corporativo",
+  "variables": [
+    { "name": "PUERTA_ABIERTA",  "type": "boolean", "domain": [true, false], "value": [false] },
+    { "name": "ALARMA_ACTIVA",   "type": "boolean", "domain": [true, false], "value": [false] },
+    { "name": "TARJETA_VALIDA",  "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "HORARIO_LABORAL", "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "LUZ_EMERGENCIA",  "type": "boolean", "domain": [true, false], "value": [false] },
+    { "name": "ZONA",            "type": "set",     "domain": ["NORTE","SUR","ESTE","OESTE"],             "value": ["NORTE","SUR"] },
+    { "name": "PERFIL",          "type": "set",     "domain": ["VISITANTE","EMPLEADO","SUPERVISOR","ADMIN"], "value": ["EMPLEADO"] },
+    { "name": "TIPO_ACCESO",     "type": "set",     "domain": ["NORMAL","RESTRINGIDO","EMERGENCIA"],      "value": ["NORMAL"] },
+    { "name": "INTENTOS",        "type": "integer", "domain": [0,1,2,3,4,5],  "value": [0,1] },
+    { "name": "NIVEL_ALERTA",    "type": "integer", "domain": [0,1,2,3,4,5],  "value": [0,1,2] },
+    { "name": "TEMPERATURA_C",   "type": "numeric", "domain": [10.0, 40.0],   "value": [20.0, 25.0] }
+  ],
+  "expressions": [
+    { "constraints": ["PUERTA_ABIERTA = false"] },
+    { "constraints": ["ALARMA_ACTIVA = false"] },
+    { "constraints": ["TARJETA_VALIDA = true AND HORARIO_LABORAL = true"] },
+    { "constraints": ["LUZ_EMERGENCIA = false"] },
+    { "constraints": ["ZONA IN {NORTE, SUR, ESTE}"] },
+    { "constraints": ["PERFIL IN {EMPLEADO, SUPERVISOR, ADMIN}"] },
+    { "constraints": ["TIPO_ACCESO IN {NORMAL, RESTRINGIDO}"] },
+    { "constraints": ["INTENTOS IN [0, 3]"] },
+    { "constraints": ["NIVEL_ALERTA IN [0, 3]"] },
+    { "constraints": ["TEMPERATURA_C IN [18.0, 28.0]"] },
+    { "constraints": ["INTENTOS + NIVEL_ALERTA <= 4"] }
+  ]
+}

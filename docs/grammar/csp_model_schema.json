@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://motorinferencia.unsj/csp_model_schema.json",
+  "title": "CSP Model — Estructura JSON",
+  "description": "Esquema estructural (Regla R0) para los modelos JSON consumidos por MotorInferencia / MotorEvaluacion. Especifica los campos obligatorios, los tipos de datos y las restricciones simples sobre cada subobjeto. NO cubre validacion semantica cruzada (R1-R8 sin R0) ni la gramatica interna de los constraints (R5, ver csp_grammar.y).",
+
+  "type": "object",
+  "required": ["_metadata", "variables", "expressions", "functions"],
+  "additionalProperties": true,
+
+  "properties": {
+    "_metadata":  { "$ref": "#/$defs/metadata" },
+    "variables":  { "type": "array", "items": { "$ref": "#/$defs/variable" } },
+    "expressions":{ "type": "array", "items": { "$ref": "#/$defs/expression" } },
+    "functions":  { "type": "array", "items": { "$ref": "#/$defs/function" } }
+  },
+
+  "$defs": {
+
+    "metadata": {
+      "type": "object",
+      "required": ["dominio", "subdominio", "version"],
+      "additionalProperties": true,
+      "properties": {
+        "dominio":     { "type": "string", "minLength": 1, "description": "Dominio canonico (carpeta padre)" },
+        "subdominio":  { "type": "string", "minLength": 1, "description": "Subdominio del archivo (capa o seccion)" },
+        "norma":       { "type": "string", "description": "Norma o fuente bibliografica de respaldo" },
+        "descripcion": { "type": "string", "description": "Descripcion narrativa del contenido del archivo" },
+        "version":     { "type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$" },
+        "fuente":      { "type": "string", "description": "Referencia al apunte, paper o documento de origen" }
+      }
+    },
+
+    "variable": {
+      "type": "object",
+      "required": ["name", "type", "domain", "value"],
+      "additionalProperties": true,
+      "properties": {
+        "name":        { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$", "description": "Identificador. El parser lo normaliza internamente a UPPERCASE." },
+        "section":     { "type": "string" },
+        "description": { "type": "string" }
+      },
+
+      "oneOf": [
+        {
+          "title": "Variable booleana",
+          "properties": {
+            "type":   { "const": "boolean" },
+            "domain": { "type": "array", "items": { "type": "boolean" }, "minItems": 2, "maxItems": 2 },
+            "value":  { "type": "array", "items": { "type": "boolean" }, "minItems": 1, "maxItems": 1 }
+          },
+          "required": ["type", "domain", "value"]
+        },
+        {
+          "title": "Variable numerica (real)",
+          "properties": {
+            "type":   { "const": "numeric" },
+            "domain": { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2, "description": "[min, max]" },
+            "value":  { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2, "description": "[low, high] = intervalo actual" }
+          },
+          "required": ["type", "domain", "value"]
+        },
+        {
+          "title": "Variable entera",
+          "properties": {
+            "type":   { "const": "integer" },
+            "domain": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+            "value":  { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 }
+          },
+          "required": ["type", "domain", "value"]
+        },
+        {
+          "title": "Variable de conjunto discreto",
+          "properties": {
+            "type":   { "const": "set" },
+            "domain": { "type": "array", "minItems": 0, "description": "Elementos admisibles" },
+            "value":  { "type": "array", "minItems": 0, "description": "Subconjunto seleccionado de domain" }
+          },
+          "required": ["type", "domain", "value"]
+        }
+      ]
+    },
+
+    "expression": {
+      "type": "object",
+      "required": ["constraints"],
+      "additionalProperties": true,
+      "properties": {
+        "constraints": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "description": "Texto del constraint. Debe parsear contra csp_grammar.y (Regla R5)." },
+          "minItems": 1
+        },
+        "_group":      { "type": "string", "description": "Etiqueta de agrupamiento (no funcional)" },
+        "description": { "type": "string" }
+      }
+    },
+
+    "function": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name":        { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" },
+        "inputs":      { "type": "array", "items": { "type": "string" }, "description": "Lista de nombres de parametros formales" },
+        "output":      { "type": "string", "description": "Nombre del output (opcional)" },
+        "body":        { "type": "string", "description": "Cuerpo de la funcion como expression. Tambien debe parsear con csp_grammar.y" },
+        "description": { "type": "string" }
+      }
+    }
+  }
+}

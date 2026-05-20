@@ -1,0 +1,332 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "integracion_global_estado",
+    "norma": "Integracion IEC 60034 / NEMA MG-1 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Capa integradora que combina los nueve archivos anteriores para definir: (i) los cuatro estados globales del activo (recuperable, victima, dano mecanico irrecuperable, sistema mal disenado); (ii) la convergencia diagnostica que refuerza una hipotesis con dos fuentes independientes; (iii) la prioridad de accion para ejecutar las acciones simultaneas en orden de gravedad. Es el archivo que el orquestador consulta para emitir el dictamen final",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte IV, Seccion 11"
+  },
+  "variables": [
+    {
+      "name": "A_REBOBINAR_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones_subsistemas",
+      "description": "Accion rebobinar disparada (entrada desde 09_accion_operativa)"
+    },
+    {
+      "name": "C_EXTERNA_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones_subsistemas",
+      "description": "Predicado C_externa activado: existe causa raiz externa al motor (entrada desde 09_accion_operativa)"
+    },
+    {
+      "name": "ROTOR_SANO_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "estado_subsistemas",
+      "description": "Rotor sano por inspeccion (entrada desde la capa diagnostica)"
+    },
+    {
+      "name": "ROTOR_ANILLO_FRACTURADO_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Anillo del rotor fracturado (dano mecanico irrecuperable; entrada desde 02_signatura_rotor)"
+    },
+    {
+      "name": "ROTOR_REFUSION_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Refusion de barras del rotor (dano mecanico irrecuperable; entrada desde 02_signatura_rotor)"
+    },
+    {
+      "name": "BETA_ROZADURA_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Marcas circunferenciales de rozadura estator-rotor (dano mecanico irrecuperable; entrada desde 03_signatura_rodamientos)"
+    },
+    {
+      "name": "ADEC_PN_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Dimensionado de potencia adecuado (entrada desde 07_adecuacion_dimensionado)"
+    },
+    {
+      "name": "ADEC_NEMA_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Tipo NEMA adecuado (entrada desde 07_adecuacion_dimensionado)"
+    },
+    {
+      "name": "ADEC_TARR_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Metodo de arranque adecuado (entrada desde 07_adecuacion_dimensionado)"
+    },
+    {
+      "name": "H_ARR_REP_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Hipotesis de arranques repetidos (entrada desde 02_signatura_rotor)"
+    },
+    {
+      "name": "BITACORA_ARR_FREC_ALTA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Bitacora del operador registra arranques a frecuencia alta (segunda fuente independiente para reforzar H_arr_rep)"
+    },
+    {
+      "name": "H_SOBRECARGA_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Hipotesis de sobrecarga (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "BETA_CAMBIO_PROD_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Hubo cambio de regimen de produccion (entrada desde 05_causa_raiz_carga)"
+    },
+    {
+      "name": "ADEC_PN_ANTES",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "estado_subsistemas",
+      "description": "Dimensionado de potencia adecuado para el regimen ANTES del cambio de produccion"
+    },
+    {
+      "name": "ADEC_PN_DESPUES",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Dimensionado de potencia adecuado para el regimen DESPUES del cambio de produccion. Si era adecuado antes y no lo es despues, refuerza H_sobrecarga"
+    },
+    {
+      "name": "A_INTERVENIR_CARGA_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones_subsistemas",
+      "description": "Accion intervenir carga (entrada desde 09_accion_operativa)"
+    },
+    {
+      "name": "A_INTERVENIR_ARRANQUE_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones_subsistemas",
+      "description": "Accion intervenir arranque (entrada desde 09_accion_operativa)"
+    },
+    {
+      "name": "A_INTERVENIR_RED_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones_subsistemas",
+      "description": "Accion intervenir red (entrada desde 09_accion_operativa)"
+    },
+    {
+      "name": "A_REEMPLAZAR_GI",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones_subsistemas",
+      "description": "Accion reemplazar (entrada desde 09_accion_operativa)"
+    },
+    {
+      "name": "EST_GLOB_RECUPERABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estados_globales",
+      "description": "Estado global: activo recuperable por rebobinado puro, sin causa externa que intervenir"
+    },
+    {
+      "name": "EST_GLOB_VICTIMA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estados_globales",
+      "description": "Estado global: el motor es la victima de una causa externa, con rotor sano. Reemplazar sin intervenir la causa raiz garantiza recurrencia del fallo"
+    },
+    {
+      "name": "EST_GLOB_DANO_MEC_IRREC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estados_globales",
+      "description": "Estado global: dano mecanico irrecuperable (anillo fracturado, refusion, rozadura). No rebobinable: requiere reemplazo"
+    },
+    {
+      "name": "EST_GLOB_SISTEMA_MAL_DIS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estados_globales",
+      "description": "Estado global: el sistema (motor + carga + arranque) esta mal disenado de origen. Requiere replanteo completo del accionamiento"
+    },
+    {
+      "name": "H_CONV_ARR_REP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "convergencia_diagnostica",
+      "description": "Hipotesis reforzada: arranques repetidos confirmados por signatura fisica Y bitacora del operador"
+    },
+    {
+      "name": "H_CONV_SOBRECARGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "convergencia_diagnostica",
+      "description": "Hipotesis reforzada: sobrecarga confirmada por signatura termica Y cambio de regimen Y dimensionado que era adecuado antes y dejo de serlo despues"
+    },
+    {
+      "name": "PRIO_INTERVENIR_CARGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Maxima prioridad: intervenir la carga es la accion mas urgente cuando esta activa"
+    },
+    {
+      "name": "PRIO_INTERVENIR_ARRANQUE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Segunda prioridad: intervenir el metodo de arranque cuando no hay intervencion de carga pendiente"
+    },
+    {
+      "name": "PRIO_INTERVENIR_RED",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Tercera prioridad: intervenir la red cuando no hay carga ni arranque pendientes"
+    },
+    {
+      "name": "PRIO_REEMPLAZAR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Cuarta prioridad: reemplazar el motor cuando no hay causa raiz externa pendiente o ya se intervino"
+    },
+    {
+      "name": "PRIO_REBOBINAR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Prioridad mas baja: rebobinar como accion permitida solo cuando no hay accion de mayor prioridad activa (regla 69)"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "A_REBOBINAR_GI AND NOT C_EXTERNA_GI AND EST_GLOB_RECUPERABLE"
+      ],
+      "_group": "estados_globales_disparo",
+      "description": "Recuperable: rebobinado autorizado Y sin causa externa (ec. 70)"
+    },
+    {
+      "constraints": [
+        "C_EXTERNA_GI AND ROTOR_SANO_GI AND EST_GLOB_VICTIMA"
+      ],
+      "_group": "estados_globales_disparo",
+      "description": "Victima: existe causa externa Y rotor sano (ec. 71)"
+    },
+    {
+      "constraints": [
+        "(ROTOR_ANILLO_FRACTURADO_GI OR ROTOR_REFUSION_GI OR BETA_ROZADURA_GI) AND EST_GLOB_DANO_MEC_IRREC"
+      ],
+      "_group": "estados_globales_disparo",
+      "description": "Dano mecanico irrecuperable: anillo fracturado, refusion o rozadura (ec. 72)"
+    },
+    {
+      "constraints": [
+        "(NOT ADEC_PN_GI OR NOT ADEC_NEMA_GI OR NOT ADEC_TARR_GI) AND EST_GLOB_SISTEMA_MAL_DIS"
+      ],
+      "_group": "estados_globales_disparo",
+      "description": "Sistema mal disenado: alguna adecuacion fallida (Pn, NEMA o metodo de arranque) (ec. 73)"
+    },
+    {
+      "constraints": [
+        "H_ARR_REP_GI AND BITACORA_ARR_FREC_ALTA AND H_CONV_ARR_REP"
+      ],
+      "_group": "convergencia_diagnostica",
+      "description": "Convergencia arranques repetidos: signatura fisica + bitacora del operador concuerdan (ec. 74)"
+    },
+    {
+      "constraints": [
+        "H_SOBRECARGA_GI AND BETA_CAMBIO_PROD_GI AND ADEC_PN_ANTES AND NOT ADEC_PN_DESPUES AND H_CONV_SOBRECARGA"
+      ],
+      "_group": "convergencia_diagnostica",
+      "description": "Convergencia sobrecarga: signatura termica + cambio de produccion + dimensionado que cambio de adecuado a inadecuado (ec. 75)"
+    },
+    {
+      "constraints": [
+        "A_INTERVENIR_CARGA_GI AND PRIO_INTERVENIR_CARGA"
+      ],
+      "_group": "prioridad_accion",
+      "description": "Prioridad maxima: intervenir carga si A_intervenir_carga activa (ec. 76 nivel 1)"
+    },
+    {
+      "constraints": [
+        "A_INTERVENIR_ARRANQUE_GI AND NOT A_INTERVENIR_CARGA_GI AND PRIO_INTERVENIR_ARRANQUE"
+      ],
+      "_group": "prioridad_accion",
+      "description": "Segunda prioridad: intervenir arranque cuando carga no esta activa (ec. 76 nivel 2)"
+    },
+    {
+      "constraints": [
+        "A_INTERVENIR_RED_GI AND NOT A_INTERVENIR_CARGA_GI AND NOT A_INTERVENIR_ARRANQUE_GI AND PRIO_INTERVENIR_RED"
+      ],
+      "_group": "prioridad_accion",
+      "description": "Tercera prioridad: intervenir red cuando ni carga ni arranque estan activas (ec. 76 nivel 3)"
+    },
+    {
+      "constraints": [
+        "A_REEMPLAZAR_GI AND NOT A_INTERVENIR_CARGA_GI AND NOT A_INTERVENIR_ARRANQUE_GI AND NOT A_INTERVENIR_RED_GI AND PRIO_REEMPLAZAR"
+      ],
+      "_group": "prioridad_accion",
+      "description": "Cuarta prioridad: reemplazar sin causa externa pendiente (ec. 76 nivel 4)"
+    },
+    {
+      "constraints": [
+        "A_REBOBINAR_GI AND NOT A_INTERVENIR_CARGA_GI AND NOT A_INTERVENIR_ARRANQUE_GI AND NOT A_INTERVENIR_RED_GI AND NOT A_REEMPLAZAR_GI AND PRIO_REBOBINAR"
+      ],
+      "_group": "prioridad_accion",
+      "description": "Prioridad mas baja: rebobinar cuando no hay accion superior pendiente (ec. 76 nivel 5)"
+    }
+  ],
+  "functions": []
+}

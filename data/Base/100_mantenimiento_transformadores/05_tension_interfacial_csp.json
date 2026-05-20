@@ -1,0 +1,256 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "tension_interfacial_aceite",
+    "norma": "ASTM D971 / IEC 62021 / IEEE C57.106",
+    "descripcion": "Evaluacion del estado del aceite dielectrico mediante tension interfacial (TI), numero de neutralizacion (NN) y Myers Quality Index (MQI = TI/NN). Diagnostico del envejecimiento del aceite y necesidad de tratamiento o reemplazo",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte II, Seccion 7"
+  },
+  "variables": [
+    {
+      "name": "TI_MN_M",
+      "type": "numeric",
+      "domain": [5.0, 50.0],
+      "value": [28.0, 50.0],
+      "section": "predicados_derivados",
+      "description": "Tension interfacial aceite-agua, en mN/m"
+    },
+    {
+      "name": "NN_MG_KOH_G",
+      "type": "numeric",
+      "domain": [0.0, 0.5],
+      "value": [0.0, 0.03],
+      "section": "predicados_derivados",
+      "description": "Numero de neutralizacion (acidez total), en mg KOH/g"
+    },
+    {
+      "name": "MQI",
+      "type": "numeric",
+      "domain": [50.0, 5000.0],
+      "value": [1500.0, 5000.0],
+      "section": "predicados_derivados",
+      "description": "Myers Quality Index: TI/NN"
+    },
+    {
+      "name": "EST_ACEITE_BUENO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "clasificadores",
+      "description": "Estado de aceite bueno: TI > 28 mN/m"
+    },
+    {
+      "name": "EST_ACEITE_MARGINAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado de aceite marginal: TI en (22, 28]"
+    },
+    {
+      "name": "EST_ACEITE_POBRE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado de aceite pobre: TI en (18, 22]"
+    },
+    {
+      "name": "EST_ACEITE_MUY_POBRE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado de aceite muy pobre: TI en (14, 18]"
+    },
+    {
+      "name": "EST_ACEITE_CRITICO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado de aceite critico: TI <= 14 (severa degradacion, riesgo de lodos)"
+    },
+    {
+      "name": "MQI_BUENO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "clasificadores",
+      "description": "MQI bueno: > 1500 (aceite poco oxidado y con buena tension interfacial)"
+    },
+    {
+      "name": "MQI_ACEPTABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "MQI aceptable: 600 < MQI <= 1500"
+    },
+    {
+      "name": "MQI_MARGINAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "MQI marginal: 300 < MQI <= 600"
+    },
+    {
+      "name": "MQI_POBRE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "MQI pobre: <= 300 (aceite muy oxidado, requiere tratamiento)"
+    },
+    {
+      "name": "A_MONITOREO_ACEITE_RUTINA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "acciones",
+      "description": "Accion: monitoreo de aceite con frecuencia de rutina. Inferido cuando EST_ACEITE_BUENO"
+    },
+    {
+      "name": "A_MONITOREO_ACEITE_SEMESTRAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: aumentar frecuencia a monitoreo semestral. Inferido cuando EST_ACEITE_MARGINAL"
+    },
+    {
+      "name": "A_REGENERACION_ACEITE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: regeneracion de aceite (tierras activadas, filtros). Inferido cuando EST_ACEITE_POBRE o (EST_ACEITE_MARGINAL y MQI_MARGINAL)"
+    },
+    {
+      "name": "A_TRATAMIENTO_URGENTE_ACEITE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: tratamiento urgente del aceite. Inferido cuando EST_ACEITE_MUY_POBRE"
+    },
+    {
+      "name": "A_SALIDA_PROGRAMADA_ACEITE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: programar salida de servicio para cambio de aceite. Inferido cuando EST_ACEITE_CRITICO"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "TI_MN_M > 28.0 AND EST_ACEITE_BUENO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aceite en buen estado: TI > 28 mN/m"
+    },
+    {
+      "constraints": [
+        "TI_MN_M > 22.0 AND TI_MN_M <= 28.0 AND EST_ACEITE_MARGINAL"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aceite marginal: TI en (22, 28]"
+    },
+    {
+      "constraints": [
+        "TI_MN_M > 18.0 AND TI_MN_M <= 22.0 AND EST_ACEITE_POBRE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aceite pobre"
+    },
+    {
+      "constraints": [
+        "TI_MN_M > 14.0 AND TI_MN_M <= 18.0 AND EST_ACEITE_MUY_POBRE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aceite muy pobre"
+    },
+    {
+      "constraints": [
+        "TI_MN_M <= 14.0 AND EST_ACEITE_CRITICO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aceite critico: TI muy baja, riesgo inminente de formacion de lodos"
+    },
+    {
+      "constraints": [
+        "MQI > 1500.0 AND MQI_BUENO"
+      ],
+      "_group": "clasificadores_mqi",
+      "description": "MQI bueno"
+    },
+    {
+      "constraints": [
+        "MQI > 600.0 AND MQI <= 1500.0 AND MQI_ACEPTABLE"
+      ],
+      "_group": "clasificadores_mqi",
+      "description": "MQI aceptable"
+    },
+    {
+      "constraints": [
+        "MQI > 300.0 AND MQI <= 600.0 AND MQI_MARGINAL"
+      ],
+      "_group": "clasificadores_mqi",
+      "description": "MQI marginal"
+    },
+    {
+      "constraints": [
+        "MQI <= 300.0 AND MQI_POBRE"
+      ],
+      "_group": "clasificadores_mqi",
+      "description": "MQI pobre"
+    },
+    {
+      "constraints": [
+        "EST_ACEITE_BUENO AND A_MONITOREO_ACEITE_RUTINA"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion monitoreo rutinario cuando aceite bueno"
+    },
+    {
+      "constraints": [
+        "EST_ACEITE_MARGINAL AND A_MONITOREO_ACEITE_SEMESTRAL"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion intensificar monitoreo a semestral cuando aceite marginal"
+    },
+    {
+      "constraints": [
+        "(EST_ACEITE_POBRE OR (EST_ACEITE_MARGINAL AND MQI_MARGINAL)) AND A_REGENERACION_ACEITE"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion regeneracion: aceite pobre o combinacion marginal+marginal en MQI"
+    },
+    {
+      "constraints": [
+        "EST_ACEITE_MUY_POBRE AND A_TRATAMIENTO_URGENTE_ACEITE"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion tratamiento urgente cuando aceite muy pobre"
+    },
+    {
+      "constraints": [
+        "EST_ACEITE_CRITICO AND A_SALIDA_PROGRAMADA_ACEITE"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion salida programada para cambio de aceite cuando estado critico"
+    },
+    {
+      "constraints": [
+        "TI_MN_M IN [5.0, 50.0] AND NN_MG_KOH_G IN [0.0, 0.5] AND MQI IN [50.0, 5000.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para variables numericas"
+    }
+  ],
+  "functions": []
+}

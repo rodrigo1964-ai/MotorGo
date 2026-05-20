@@ -1,0 +1,431 @@
+{
+  "description": "Calificación de procedimiento de soldadura — WPS/PQR",
+  "norma": "AWS D1.1 / ASME IX",
+  "sections": [
+    "1. Material base",
+    "2. Proceso y consumibles",
+    "3. Parámetros eléctricos",
+    "4. Temperaturas",
+    "5. Diseño de junta",
+    "6. Ejecución",
+    "7. Control de calidad"
+  ],
+
+  "variables": {
+
+    "tipo_material": {
+      "type":        "set",
+      "domain":      ["A36", "A572Gr50", "A588", "A516Gr70", "A514"],
+      "value":       ["A36", "A572Gr50"],
+      "section":     "1. Material base",
+      "description": "Acero estructural identificado en campo"
+    },
+    "espesor_mm": {
+      "type":        "real",
+      "domain":      [1.5, 150.0],
+      "value":       [19.0, 21.0],
+      "section":     "1. Material base",
+      "description": "Calibre digital ±1.0mm — nominal 20mm"
+    },
+    "limite_elastico_mpa": {
+      "type":        "real",
+      "domain":      [230.0, 700.0],
+      "value":       [248.0, 280.0],
+      "section":     "1. Material base",
+      "description": "Certificado de material — A36 mín 250MPa"
+    },
+    "tension_rotura_mpa": {
+      "type":        "real",
+      "domain":      [350.0, 900.0],
+      "value":       [400.0, 432.0],
+      "section":     "1. Material base",
+      "description": "Certificado de material — A36 400-550MPa"
+    },
+
+    "proceso_soldadura": {
+      "type":        "set",
+      "domain":      ["SMAW", "GMAW", "GTAW", "FCAW", "SAW"],
+      "value":       ["SMAW"],
+      "section":     "2. Proceso y consumibles",
+      "description": "Proceso calificado"
+    },
+    "clasificacion_electrodo": {
+      "type":        "set",
+      "domain":      ["E6010", "E6013", "E7016", "E7018", "E8018-C3"],
+      "value":       ["E7018"],
+      "section":     "2. Proceso y consumibles",
+      "description": "Electrodo seleccionado"
+    },
+    "diametro_electrodo_mm": {
+      "type":        "real",
+      "domain":      [2.0, 8.0],
+      "value":       [4.75, 4.85],
+      "section":     "2. Proceso y consumibles",
+      "description": "Micrómetro — nominal 4.76mm (3/16\")"
+    },
+    "bajo_hidrogeno": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [true],
+      "section":     "2. Proceso y consumibles",
+      "description": "E7018 es bajo hidrógeno — confirmado"
+    },
+    "tipo_corriente": {
+      "type":        "set",
+      "domain":      ["AC", "DCEP", "DCEN"],
+      "value":       ["DCEP"],
+      "section":     "2. Proceso y consumibles",
+      "description": "Polaridad inversa — requerida por E7018"
+    },
+
+    "amperaje_a": {
+      "type":        "integer",
+      "domain":      [60, 350],
+      "value":       [140, 150, 160],
+      "section":     "3. Parámetros eléctricos",
+      "description": "Amperímetro de pinza ±10A — E7018 Ø4.76mm"
+    },
+    "voltaje_v": {
+      "type":        "real",
+      "domain":      [15.0, 40.0],
+      "value":       [22.0, 24.0],
+      "section":     "3. Parámetros eléctricos",
+      "description": "Voltímetro digital ±1V"
+    },
+    "velocidad_avance_mm_min": {
+      "type":        "real",
+      "domain":      [50.0, 500.0],
+      "value":       [180.0, 220.0],
+      "section":     "3. Parámetros eléctricos",
+      "description": "Medición por longitud/tiempo ±20mm/min"
+    },
+    "heat_input_kj_mm": {
+      "type":        "real",
+      "domain":      [0.1, 5.0],
+      "value":       [0.85, 1.20],
+      "section":     "3. Parámetros eléctricos",
+      "description": "Calculado: (V × A × 60) / (vel × 1000)"
+    },
+
+    "temp_precalentamiento_c": {
+      "type":        "real",
+      "domain":      [0.0, 400.0],
+      "value":       [82.0, 98.0],
+      "section":     "4. Temperaturas",
+      "description": "Termómetro de contacto ±8°C — mínimo 80°C"
+    },
+    "temp_interpase_c": {
+      "type":        "real",
+      "domain":      [0.0, 400.0],
+      "value":       [210.0, 235.0],
+      "section":     "4. Temperaturas",
+      "description": "Termocupla tipo K ±12°C — máximo 260°C"
+    },
+    "pwht_aplicado": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [false],
+      "section":     "4. Temperaturas",
+      "description": "PWHT no requerido para este espesor"
+    },
+    "temp_pwht_c": {
+      "type":        "real",
+      "domain":      [550.0, 750.0],
+      "value":       [595.0, 635.0],
+      "section":     "4. Temperaturas",
+      "description": "Termocupla de horno ±20°C — solo si pwht_aplicado"
+    },
+
+    "tipo_junta": {
+      "type":        "set",
+      "domain":      ["tope", "filete", "esquina", "te"],
+      "value":       ["tope"],
+      "section":     "5. Diseño de junta",
+      "description": "Junta a tope con penetración completa (CJP)"
+    },
+    "angulo_ranura_grad": {
+      "type":        "real",
+      "domain":      [30.0, 90.0],
+      "value":       [59.0, 61.0],
+      "section":     "5. Diseño de junta",
+      "description": "Goniómetro ±1° — nominal 60°"
+    },
+    "abertura_raiz_mm": {
+      "type":        "real",
+      "domain":      [0.0, 8.0],
+      "value":       [2.0, 3.0],
+      "section":     "5. Diseño de junta",
+      "description": "Galga de abertura ±0.5mm"
+    },
+    "cara_raiz_mm": {
+      "type":        "real",
+      "domain":      [0.0, 4.0],
+      "value":       [1.5, 2.5],
+      "section":     "5. Diseño de junta",
+      "description": "Galga de cara ±0.5mm"
+    },
+
+    "numero_pases": {
+      "type":        "integer",
+      "domain":      [1, 30],
+      "value":       [4, 5, 6],
+      "section":     "6. Ejecución",
+      "description": "Conteo de pases para espesor 20mm con E7018 Ø4.76"
+    },
+    "posicion_soldadura": {
+      "type":        "set",
+      "domain":      ["1G", "2G", "3G", "4G", "1F", "2F", "3F", "4F"],
+      "value":       ["1G", "2G"],
+      "section":     "6. Ejecución",
+      "description": "Posiciones calificadas en este PQR"
+    },
+    "progresion": {
+      "type":        "set",
+      "domain":      ["ascendente", "descendente"],
+      "value":       ["ascendente"],
+      "section":     "6. Ejecución",
+      "description": "Progresión vertical ascendente"
+    },
+
+    "inspeccion_visual_ok": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [true],
+      "section":     "7. Control de calidad",
+      "description": "Inspección visual aprobada"
+    },
+    "ensayo_traccion_ok": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [true],
+      "section":     "7. Control de calidad",
+      "description": "Ensayo de tracción aprobado"
+    },
+    "ensayo_doblado_ok": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [true],
+      "section":     "7. Control de calidad",
+      "description": "Ensayo de doblado aprobado"
+    },
+    "resultado_end": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [true, false],
+      "section":     "7. Control de calidad",
+      "description": "END (UT/RT) — resultado pendiente de informe"
+    },
+    "calificacion_aprobada": {
+      "type":        "boolean",
+      "domain":      [true, false],
+      "value":       [true, false],
+      "section":     "7. Control de calidad",
+      "description": "Aprobación final — requiere todos los ensayos"
+    }
+
+  },
+
+  "expressions": [
+
+    {
+      "_group": "Material base",
+      "variable":    "tipo_material",
+      "constraint":  "tipo_material SUBSET_OF ['A36', 'A572Gr50', 'A588']",
+      "expected":    ["A36", "A572Gr50"],
+      "description": "Materiales del grupo P1 — ambos calificados"
+    },
+    {
+      "variable":    "tipo_material",
+      "constraint":  "tipo_material SUBSET_OF ['A514', 'A588']",
+      "expected":    null,
+      "description": "Contradicción: ninguno de {A36,A572Gr50} es acero de alta resistencia"
+    },
+    {
+      "variable":    "espesor_mm",
+      "constraint":  "espesor_mm IN [6.0, 40.0]",
+      "expected":    [19.0, 21.0],
+      "description": "Rango calificado: 6 a 40mm — sin estrechar"
+    },
+    {
+      "variable":    "espesor_mm",
+      "constraint":  "espesor_mm IN [20.0, 40.0]",
+      "expected":    [20.0, 21.0],
+      "description": "Estrecha por abajo: corta en 20.0mm"
+    },
+    {
+      "variable":    "limite_elastico_mpa",
+      "constraint":  "limite_elastico_mpa IN [250.0, 700.0]",
+      "expected":    [250.0, 280.0],
+      "description": "Mínimo normativo 250MPa — estrecha por abajo"
+    },
+
+    {
+      "_group": "Consumibles",
+      "variable":    "clasificacion_electrodo",
+      "constraint":  "clasificacion_electrodo SUBSET_OF ['E7016', 'E7018', 'E8018-C3']",
+      "expected":    ["E7018"],
+      "description": "Solo electrodos de alta resistencia — E7018 compatible"
+    },
+    {
+      "variable":    "clasificacion_electrodo",
+      "constraint":  "clasificacion_electrodo SUBSET_OF ['E6010', 'E6013']",
+      "expected":    null,
+      "description": "Contradicción: E7018 no es electrodo de baja resistencia"
+    },
+    {
+      "variable":    "bajo_hidrogeno",
+      "constraint":  "bajo_hidrogeno = true",
+      "expected":    [true],
+      "description": "Confirma: bajo hidrógeno requerido por norma para este acero"
+    },
+    {
+      "variable":    "tipo_corriente",
+      "constraint":  "tipo_corriente SUBSET_OF ['DCEP', 'AC']",
+      "expected":    ["DCEP"],
+      "description": "E7018 admite DCEP o AC — DCEP es el valor actual"
+    },
+
+    {
+      "_group": "Parámetros eléctricos",
+      "variable":    "amperaje_a",
+      "constraint":  "amperaje_a IN [130, 170]",
+      "expected":    [140, 150, 160],
+      "description": "Rango de WPS para E7018 Ø4.76mm — sin estrechar"
+    },
+    {
+      "variable":    "amperaje_a",
+      "constraint":  "amperaje_a IN [150, 200]",
+      "expected":    [150, 160],
+      "description": "Estrecha por abajo: elimina 140A"
+    },
+    {
+      "variable":    "amperaje_a",
+      "constraint":  "amperaje_a IN [200, 300]",
+      "expected":    null,
+      "description": "Contradicción: {140,150,160} ∩ [200,300] = ∅"
+    },
+    {
+      "variable":    "voltaje_v",
+      "constraint":  "voltaje_v IN [20.0, 26.0]",
+      "expected":    [22.0, 24.0],
+      "description": "Rango de WPS para SMAW — sin estrechar"
+    },
+    {
+      "variable":    "heat_input_kj_mm",
+      "constraint":  "heat_input_kj_mm IN [0.0, 3.0]",
+      "expected":    [0.85, 1.20],
+      "description": "Heat input dentro del límite AWS D1.1 — sin estrechar"
+    },
+    {
+      "variable":    "heat_input_kj_mm",
+      "constraint":  "heat_input_kj_mm IN [0.0, 1.0]",
+      "expected":    [0.85, 1.0],
+      "description": "Estrecha por arriba: corta en 1.0 kJ/mm"
+    },
+
+    {
+      "_group": "Temperaturas",
+      "variable":    "temp_precalentamiento_c",
+      "constraint":  "temp_precalentamiento_c IN [80.0, 400.0]",
+      "expected":    [82.0, 98.0],
+      "description": "Mínimo 80°C para A36 espesor >19mm — cumple"
+    },
+    {
+      "variable":    "temp_interpase_c",
+      "constraint":  "temp_interpase_c IN [80.0, 260.0]",
+      "expected":    [210.0, 235.0],
+      "description": "Máximo 260°C para A36 — sin estrechar"
+    },
+    {
+      "variable":    "temp_interpase_c",
+      "constraint":  "temp_interpase_c IN [80.0, 220.0]",
+      "expected":    [210.0, 220.0],
+      "description": "Estrecha por arriba: corta en 220°C"
+    },
+    {
+      "variable":    "pwht_aplicado",
+      "constraint":  "pwht_aplicado = false",
+      "expected":    [false],
+      "description": "PWHT no requerido — confirma {false}"
+    },
+
+    {
+      "_group": "Diseño de junta",
+      "variable":    "angulo_ranura_grad",
+      "constraint":  "angulo_ranura_grad IN [55.0, 65.0]",
+      "expected":    [59.0, 61.0],
+      "description": "Tolerancia ±5° sobre nominal 60° — sin estrechar"
+    },
+    {
+      "variable":    "angulo_ranura_grad",
+      "constraint":  "angulo_ranura_grad IN [60.0, 90.0]",
+      "expected":    [60.0, 61.0],
+      "description": "Estrecha por abajo: corta en 60°"
+    },
+    {
+      "variable":    "abertura_raiz_mm",
+      "constraint":  "abertura_raiz_mm IN [1.5, 4.0]",
+      "expected":    [2.0, 3.0],
+      "description": "Rango permitido — sin estrechar"
+    },
+    {
+      "variable":    "cara_raiz_mm",
+      "constraint":  "cara_raiz_mm IN [1.0, 2.0]",
+      "expected":    [1.5, 2.0],
+      "description": "Estrecha por arriba: corta en 2.0mm"
+    },
+
+    {
+      "_group": "Ejecución",
+      "variable":    "numero_pases",
+      "constraint":  "numero_pases IN [3, 8]",
+      "expected":    [4, 5, 6],
+      "description": "Rango esperado para 20mm con E7018 — sin estrechar"
+    },
+    {
+      "variable":    "numero_pases",
+      "constraint":  "numero_pases IN [5, 10]",
+      "expected":    [5, 6],
+      "description": "Estrecha por abajo: elimina 4 pases"
+    },
+    {
+      "variable":    "posicion_soldadura",
+      "constraint":  "posicion_soldadura SUBSET_OF ['1G', '2G', '3G', '4G']",
+      "expected":    ["1G", "2G"],
+      "description": "Solo posiciones de tope — ambas calificadas"
+    },
+    {
+      "variable":    "posicion_soldadura",
+      "constraint":  "posicion_soldadura SUBSET_OF ['3G', '4G']",
+      "expected":    null,
+      "description": "Contradicción: {1G,2G} ∩ {3G,4G} = ∅"
+    },
+
+    {
+      "_group": "Control de calidad",
+      "variable":    "inspeccion_visual_ok",
+      "constraint":  "inspeccion_visual_ok = true",
+      "expected":    [true],
+      "description": "Inspección visual aprobada — confirma"
+    },
+    {
+      "variable":    "resultado_end",
+      "constraint":  "resultado_end = true",
+      "expected":    [true],
+      "description": "Estrecha: si END aprueba, value queda {true}"
+    },
+    {
+      "variable":    "resultado_end",
+      "constraint":  "resultado_end = false",
+      "expected":    [false],
+      "description": "Estrecha: si END rechaza, value queda {false}"
+    },
+    {
+      "variable":    "calificacion_aprobada",
+      "constraint":  "calificacion_aprobada = true",
+      "expected":    [true],
+      "description": "Aprobación final — requiere convergencia de todos los ensayos"
+    }
+
+  ]
+}

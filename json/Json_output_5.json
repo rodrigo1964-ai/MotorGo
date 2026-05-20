@@ -1,0 +1,696 @@
+{
+		"variables": [
+			{
+				"name": "APROBADO",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 0
+			},
+			{
+				"name": "ASISTENCIA_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 1
+			},
+			{
+				"name": "PROYECTO_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 2
+			},
+			{
+				"name": "EXAMEN_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 3
+			},
+			{
+				"name": "BECA_ACTIVA",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					false
+				],
+				"id": 4
+			},
+			{
+				"name": "CARRERA",
+				"type": "set",
+				"domain": [
+					"INFORMATICA",
+					"MECANICA",
+					"ELECTRICA",
+					"CIVIL"
+				],
+				"value": [
+					"INFORMATICA"
+				],
+				"id": 5
+			},
+			{
+				"name": "SEMESTRE",
+				"type": "set",
+				"domain": [
+					"SEM1",
+					"SEM2",
+					"SEM3",
+					"SEM4",
+					"SEM5",
+					"SEM6",
+					"SEM7",
+					"SEM8"
+				],
+				"value": [
+					"SEM5",
+					"SEM6"
+				],
+				"id": 6
+			},
+			{
+				"name": "MODALIDAD",
+				"type": "set",
+				"domain": [
+					"PRESENCIAL",
+					"HIBRIDA",
+					"VIRTUAL"
+				],
+				"value": [
+					"HIBRIDA"
+				],
+				"id": 7
+			},
+			{
+				"name": "NOTA_PARCIAL",
+				"type": "integer",
+				"domain": [
+					0,
+					10,
+					20,
+					30,
+					40,
+					50,
+					60,
+					70,
+					75,
+					80,
+					85,
+					90,
+					95,
+					100
+				],
+				"value": [
+					70,
+					75,
+					80
+				],
+				"id": 8
+			},
+			{
+				"name": "CREDITOS",
+				"type": "integer",
+				"domain": [
+					60,
+					70,
+					80,
+					90,
+					100,
+					110,
+					120,
+					130,
+					140,
+					150
+				],
+				"value": [
+					90,
+					100,
+					110
+				],
+				"id": 9
+			},
+			{
+				"name": "PROMEDIO",
+				"type": "numeric",
+				"domain": [
+					0,
+					10
+				],
+				"value": [
+					7,
+					8.5
+				],
+				"id": 10
+			}
+		],
+		"functions": [],
+		"constraints": [
+			{
+				"id": 0,
+				"expr": "APROBADO = true AND ASISTENCIA_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "APROBADO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "ASISTENCIA_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					0,
+					1
+				],
+				"func_refs": []
+			},
+			{
+				"id": 1,
+				"expr": "PROYECTO_OK = true AND EXAMEN_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PROYECTO_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "EXAMEN_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					2,
+					3
+				],
+				"func_refs": []
+			},
+			{
+				"id": 2,
+				"expr": "BECA_ACTIVA = false",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "BECA_ACTIVA"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "FALSE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					4
+				],
+				"func_refs": []
+			},
+			{
+				"id": 3,
+				"expr": "CARRERA IN {INFORMATICA, MECANICA, ELECTRICA}",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CARRERA"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "INFORMATICA"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "MECANICA"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "ELECTRICA"
+					},
+					{
+						"id": 4,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3
+						]
+					},
+					{
+						"id": 5,
+						"type": "In",
+						"left": 0,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					5
+				],
+				"func_refs": []
+			},
+			{
+				"id": 4,
+				"expr": "SEMESTRE IN {SEM4, SEM5, SEM6, SEM7, SEM8}",
+				"root": 7,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "SEMESTRE"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "SEM4"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "SEM5"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "SEM6"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "SEM7"
+					},
+					{
+						"id": 5,
+						"type": "Variable",
+						"name": "SEM8"
+					},
+					{
+						"id": 6,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3,
+							4,
+							5
+						]
+					},
+					{
+						"id": 7,
+						"type": "In",
+						"left": 0,
+						"right": 6
+					}
+				],
+				"var_refs": [
+					6
+				],
+				"func_refs": []
+			},
+			{
+				"id": 5,
+				"expr": "MODALIDAD IN {PRESENCIAL, HIBRIDA}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MODALIDAD"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "PRESENCIAL"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "HIBRIDA"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					7
+				],
+				"func_refs": []
+			},
+			{
+				"id": 6,
+				"expr": "NOTA_PARCIAL IN [60, 100]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "NOTA_PARCIAL"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 60
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 100
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 7,
+				"expr": "CREDITOS IN [80, 150]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CREDITOS"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 80
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 150
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					9
+				],
+				"func_refs": []
+			},
+			{
+				"id": 8,
+				"expr": "PROMEDIO IN [6.0, 10.0]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PROMEDIO"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 6
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 10
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 9,
+				"expr": "NOTA_PARCIAL >= 70 AND PROMEDIO >= 7.0",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "NOTA_PARCIAL"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 70
+					},
+					{
+						"id": 2,
+						"type": "GreaterEq",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "PROMEDIO"
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 7
+					},
+					{
+						"id": 5,
+						"type": "GreaterEq",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					8,
+					10
+				],
+				"func_refs": []
+			}
+		],
+		"adjacency": [
+			{
+				"var_id": 0,
+				"name": "APROBADO",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 1,
+				"name": "ASISTENCIA_OK",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 2,
+				"name": "PROYECTO_OK",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 3,
+				"name": "EXAMEN_OK",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 4,
+				"name": "BECA_ACTIVA",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 5,
+				"name": "CARRERA",
+				"constraint_ids": [
+					3
+				]
+			},
+			{
+				"var_id": 6,
+				"name": "SEMESTRE",
+				"constraint_ids": [
+					4
+				]
+			},
+			{
+				"var_id": 7,
+				"name": "MODALIDAD",
+				"constraint_ids": [
+					5
+				]
+			},
+			{
+				"var_id": 8,
+				"name": "NOTA_PARCIAL",
+				"constraint_ids": [
+					6,
+					9
+				]
+			},
+			{
+				"var_id": 9,
+				"name": "CREDITOS",
+				"constraint_ids": [
+					7
+				]
+			},
+			{
+				"var_id": 10,
+				"name": "PROMEDIO",
+				"constraint_ids": [
+					8,
+					9
+				]
+			}
+		]
+	}

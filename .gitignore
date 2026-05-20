@@ -1,0 +1,46 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporales y logs
+*.tmp
+*.log
+*.bak
+*.swp
+
+# Backups locales
+.git.backup-*
+
+# IDE
+.vscode/
+.idea/
+
+# Código fuente y documentación (mantener local)
+*.pas
+*.obj
+*.md
+*.txt
+
+# Excepciones obligatorias para que el deploy funcione:
+!requirements.txt
+
+# Pascal compilation artifacts
+obj/
+*.o
+*.ppu
+*.a
+
+# Otros sources (C, Lex/Yacc, LaTeX)
+*.c
+*.h
+*.l
+*.y
+*.tex

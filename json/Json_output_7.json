@@ -1,0 +1,862 @@
+{
+		"variables": [
+			{
+				"name": "VIGA_SIMETRICA",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 0
+			},
+			{
+				"name": "PANDEO_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 1
+			},
+			{
+				"name": "DEFORMACION_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 2
+			},
+			{
+				"name": "ANCLAJE_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 3
+			},
+			{
+				"name": "CALCULO_VERIFICADO",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					false
+				],
+				"id": 4
+			},
+			{
+				"name": "SECCION",
+				"type": "set",
+				"domain": [
+					"IPE200",
+					"IPE300",
+					"IPE400",
+					"HEB200",
+					"HEB300"
+				],
+				"value": [
+					"IPE300",
+					"HEB200"
+				],
+				"id": 5
+			},
+			{
+				"name": "ACERO_GRADO",
+				"type": "set",
+				"domain": [
+					"S235",
+					"S275",
+					"S355",
+					"S460"
+				],
+				"value": [
+					"S275",
+					"S355"
+				],
+				"id": 6
+			},
+			{
+				"name": "COND_APOYO",
+				"type": "set",
+				"domain": [
+					"BIAPOYADA",
+					"VOLADIZO",
+					"CONTINUA"
+				],
+				"value": [
+					"BIAPOYADA"
+				],
+				"id": 7
+			},
+			{
+				"name": "LONGITUD_M",
+				"type": "integer",
+				"domain": [
+					2,
+					3,
+					4,
+					5,
+					6,
+					7,
+					8,
+					9,
+					10
+				],
+				"value": [
+					4,
+					5,
+					6
+				],
+				"id": 8
+			},
+			{
+				"name": "NUM_CARGAS",
+				"type": "integer",
+				"domain": [
+					1,
+					2,
+					3,
+					4,
+					5
+				],
+				"value": [
+					1,
+					2,
+					3
+				],
+				"id": 9
+			},
+			{
+				"name": "CARGA_KN",
+				"type": "numeric",
+				"domain": [
+					10,
+					500
+				],
+				"value": [
+					80,
+					120
+				],
+				"id": 10
+			}
+		],
+		"functions": [
+			{
+				"name": "tension_admisible",
+				"inputs": [
+					{
+						"name": "carga_kn",
+						"type": "numeric",
+						"domain": [
+							0,
+							1000
+						]
+					},
+					{
+						"name": "area_cm2",
+						"type": "numeric",
+						"domain": [
+							1,
+							500
+						]
+					}
+				],
+				"outputs": [
+					{
+						"name": "tension",
+						"type": "numeric",
+						"domain": [
+							0,
+							500
+						]
+					}
+				],
+				"id": 0
+			},
+			{
+				"name": "factor_seguridad",
+				"inputs": [
+					{
+						"name": "resistencia",
+						"type": "numeric",
+						"domain": [
+							0,
+							2000
+						]
+					},
+					{
+						"name": "carga",
+						"type": "numeric",
+						"domain": [
+							0,
+							1000
+						]
+					}
+				],
+				"outputs": [
+					{
+						"name": "fs",
+						"type": "numeric",
+						"domain": [
+							0,
+							20
+						]
+					}
+				],
+				"id": 1
+			}
+		],
+		"constraints": [
+			{
+				"id": 0,
+				"expr": "VIGA_SIMETRICA = true AND PANDEO_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "VIGA_SIMETRICA"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "PANDEO_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					0,
+					1
+				],
+				"func_refs": []
+			},
+			{
+				"id": 1,
+				"expr": "DEFORMACION_OK = true AND ANCLAJE_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "DEFORMACION_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "ANCLAJE_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					2,
+					3
+				],
+				"func_refs": []
+			},
+			{
+				"id": 2,
+				"expr": "CALCULO_VERIFICADO = false",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CALCULO_VERIFICADO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "FALSE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					4
+				],
+				"func_refs": []
+			},
+			{
+				"id": 3,
+				"expr": "SECCION IN {IPE300, IPE400, HEB200, HEB300}",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "SECCION"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "IPE300"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "IPE400"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "HEB200"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "HEB300"
+					},
+					{
+						"id": 5,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3,
+							4
+						]
+					},
+					{
+						"id": 6,
+						"type": "In",
+						"left": 0,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					5
+				],
+				"func_refs": []
+			},
+			{
+				"id": 4,
+				"expr": "ACERO_GRADO IN {S275, S355, S460}",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ACERO_GRADO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "S275"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "S355"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "S460"
+					},
+					{
+						"id": 4,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3
+						]
+					},
+					{
+						"id": 5,
+						"type": "In",
+						"left": 0,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					6
+				],
+				"func_refs": []
+			},
+			{
+				"id": 5,
+				"expr": "COND_APOYO IN {BIAPOYADA, CONTINUA}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "COND_APOYO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "BIAPOYADA"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "CONTINUA"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					7
+				],
+				"func_refs": []
+			},
+			{
+				"id": 6,
+				"expr": "LONGITUD_M IN [3, 8]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "LONGITUD_M"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 3
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 8
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 7,
+				"expr": "NUM_CARGAS IN [1, 5]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "NUM_CARGAS"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 1
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 5
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					9
+				],
+				"func_refs": []
+			},
+			{
+				"id": 8,
+				"expr": "CARGA_KN IN [50.0, 200.0]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CARGA_KN"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 50
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 200
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 9,
+				"expr": "sqrt(LONGITUD_M) <= 3.5",
+				"root": 3,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "LONGITUD_M"
+					},
+					{
+						"id": 1,
+						"type": "FunctionCall",
+						"name": "SQRT",
+						"args": [
+							0
+						]
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 3.5
+					},
+					{
+						"id": 3,
+						"type": "LessEq",
+						"left": 1,
+						"right": 2
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 10,
+				"expr": "abs(CARGA_KN - 100.0) <= 30.0",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CARGA_KN"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 100
+					},
+					{
+						"id": 2,
+						"type": "Subtract",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "FunctionCall",
+						"name": "ABS",
+						"args": [
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 30
+					},
+					{
+						"id": 5,
+						"type": "LessEq",
+						"left": 3,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 11,
+				"expr": "tension_admisible(CARGA_KN, 53.8) <= 2.4",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CARGA_KN"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 53.8
+					},
+					{
+						"id": 2,
+						"type": "FunctionCall",
+						"name": "TENSION_ADMISIBLE",
+						"args": [
+							0,
+							1
+						]
+					},
+					{
+						"id": 3,
+						"type": "Number",
+						"value": 2.4
+					},
+					{
+						"id": 4,
+						"type": "LessEq",
+						"left": 2,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": [
+					0
+				]
+			},
+			{
+				"id": 12,
+				"expr": "factor_seguridad(240.0, CARGA_KN) >= 1.5",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Number",
+						"value": 240
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "CARGA_KN"
+					},
+					{
+						"id": 2,
+						"type": "FunctionCall",
+						"name": "FACTOR_SEGURIDAD",
+						"args": [
+							0,
+							1
+						]
+					},
+					{
+						"id": 3,
+						"type": "Number",
+						"value": 1.5
+					},
+					{
+						"id": 4,
+						"type": "GreaterEq",
+						"left": 2,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": [
+					1
+				]
+			}
+		],
+		"adjacency": [
+			{
+				"var_id": 0,
+				"name": "VIGA_SIMETRICA",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 1,
+				"name": "PANDEO_OK",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 2,
+				"name": "DEFORMACION_OK",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 3,
+				"name": "ANCLAJE_OK",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 4,
+				"name": "CALCULO_VERIFICADO",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 5,
+				"name": "SECCION",
+				"constraint_ids": [
+					3
+				]
+			},
+			{
+				"var_id": 6,
+				"name": "ACERO_GRADO",
+				"constraint_ids": [
+					4
+				]
+			},
+			{
+				"var_id": 7,
+				"name": "COND_APOYO",
+				"constraint_ids": [
+					5
+				]
+			},
+			{
+				"var_id": 8,
+				"name": "LONGITUD_M",
+				"constraint_ids": [
+					6,
+					9
+				]
+			},
+			{
+				"var_id": 9,
+				"name": "NUM_CARGAS",
+				"constraint_ids": [
+					7
+				]
+			},
+			{
+				"var_id": 10,
+				"name": "CARGA_KN",
+				"constraint_ids": [
+					8,
+					10,
+					11,
+					12
+				]
+			}
+		]
+	}

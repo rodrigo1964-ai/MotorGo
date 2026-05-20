@@ -1,0 +1,279 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "capa_diagnostica_estator",
+    "norma": "IEC 60034-1 / NEMA MG-1 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Capa diagnostica para fallas del estator del motor asincronico jaula. Cubre predicados derivados de signatura fisica (uniformidad, asimetria, localizacion del dano del bobinado), clasificadores bicondicionales de modo de falla (sobrecarga termica/subtension, single-phasing, sobretension transitoria, humedad), e hipotesis abductivas H_*. Existencializacion: los predicados con argumentos por fase (sigma_est^phi del documento de ecuaciones logicas) se aplanan a versiones existenciales booleanas",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte I, Secciones 3-5"
+  },
+  "variables": [
+    {
+      "name": "V_RED_REL_NOMINAL",
+      "type": "numeric",
+      "domain": [0.5, 1.2],
+      "value": [0.95, 1.05],
+      "section": "predicados_derivados",
+      "description": "Tension promedio de red relativa al nominal (V_red_prom / V_n). Valor 1.0 = nominal. Disparador de subtension documentada es < 0.90"
+    },
+    {
+      "name": "R_AIS_LOG10_OHM",
+      "type": "numeric",
+      "domain": [3.0, 12.0],
+      "value": [8.0, 11.0],
+      "section": "predicados_derivados",
+      "description": "Logaritmo decimal de la resistencia de aislamiento del bobinado (megger). Sano > 10^8 ohm = 8.0 en log10. Falla a tierra por humedad < 10^4 ohm = 4.0"
+    },
+    {
+      "name": "EST_DANO_UNIFORME",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Unifest: las tres fases del estator presentan el mismo grado de dano y al menos una no esta sana (signatura termica global)"
+    },
+    {
+      "name": "EST_DANO_ASIMETRICO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Asimest: existe una fase severamente danada y otra fase sana (signatura de single-phasing)"
+    },
+    {
+      "name": "EST_DANO_LOCALIZADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Locest: el dano del bobinado es localizado (un punto especifico) y no se distribuye uniformemente en la fase"
+    },
+    {
+      "name": "ROTOR_SANO_INSPECCION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "predicados_derivados",
+      "description": "Estado visible del rotor sano (sin barras quebradas, sin anillo agrietado, sin refusion)"
+    },
+    {
+      "name": "BETA_OLOR_QUEMADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Olor a aislamiento quemado al abrir el motor"
+    },
+    {
+      "name": "BETA_COBRE_FUNDIDO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Cobre fundido visible en el punto de inicio del dano"
+    },
+    {
+      "name": "CONF_OP_SOSTENIDA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Confirmacion por bitacora: la falla ocurrio tras un periodo de operacion sostenida en condiciones nominales o superiores"
+    },
+    {
+      "name": "SUBTENSION_DOCUMENTADA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Existe registro de V_RED_REL_NOMINAL < 0.90 durante algun intervalo previo a la falla"
+    },
+    {
+      "name": "SIG_TRM_GLOB",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Signatura termica global (sobrecarga sostenida o subtension prolongada, indistinguibles por signatura sola)"
+    },
+    {
+      "name": "SIG_1FASE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Signatura de single-phasing (operacion monofasica)"
+    },
+    {
+      "name": "SIG_SOBRET",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Signatura de sobretension transitoria (impulso o switching)"
+    },
+    {
+      "name": "SIG_TIERRA_H",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Signatura de falla a tierra por humedad (aislamiento degradado por agua o vapor)"
+    },
+    {
+      "name": "H_SOBRECARGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: sobrecarga mecanica sostenida (la carga exige mas par del que el motor puede entregar continuamente)"
+    },
+    {
+      "name": "H_SUBTENSION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: subtension de red sostenida (al disminuir V, la corriente sube para mantener par y el motor se sobrecalienta)"
+    },
+    {
+      "name": "H_1FASE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: single-phasing (motor opera con una fase perdida; la fase remanente quema asimetricamente)"
+    },
+    {
+      "name": "H_SOBRET_TRANS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: sobretension transitoria (descarga atmosferica o conmutacion produjo pico de tension que perforo aislamiento localmente)"
+    },
+    {
+      "name": "H_HUMEDAD",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: falla a tierra por degradacion del aislamiento por humedad"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "EST_DANO_UNIFORME AND ROTOR_SANO_INSPECCION AND BETA_OLOR_QUEMADO AND SIG_TRM_GLOB"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigTrmGlob (bicondicional positivo): signatura termica global se dispara con dano uniforme del estator, rotor sano y olor a quemado"
+    },
+    {
+      "constraints": [
+        "(NOT EST_DANO_UNIFORME OR NOT ROTOR_SANO_INSPECCION OR NOT BETA_OLOR_QUEMADO) AND NOT SIG_TRM_GLOB"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigTrmGlob (bicondicional negativo): si falta cualquiera de las tres premisas, la signatura no se dispara"
+    },
+    {
+      "constraints": [
+        "EST_DANO_ASIMETRICO AND ROTOR_SANO_INSPECCION AND SIG_1FASE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Sig1Fase (positivo): signatura single-phasing con dano asimetrico del estator y rotor sano"
+    },
+    {
+      "constraints": [
+        "(NOT EST_DANO_ASIMETRICO OR NOT ROTOR_SANO_INSPECCION) AND NOT SIG_1FASE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Sig1Fase (negativo): sin dano asimetrico o con rotor afectado, no es single-phasing"
+    },
+    {
+      "constraints": [
+        "EST_DANO_LOCALIZADO AND NOT EST_DANO_UNIFORME AND BETA_COBRE_FUNDIDO AND SIG_SOBRET"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigSobret (positivo): signatura de sobretension transitoria con dano localizado no uniforme y cobre fundido"
+    },
+    {
+      "constraints": [
+        "(NOT EST_DANO_LOCALIZADO OR EST_DANO_UNIFORME OR NOT BETA_COBRE_FUNDIDO) AND NOT SIG_SOBRET"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigSobret (negativo): sin dano localizado, o con dano uniforme, o sin cobre fundido, no es sobretension transitoria"
+    },
+    {
+      "constraints": [
+        "EST_DANO_LOCALIZADO AND R_AIS_LOG10_OHM < 4.0 AND NOT BETA_COBRE_FUNDIDO AND SIG_TIERRA_H"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigTierraH (positivo): falla a tierra por humedad con dano localizado, aislamiento bajo (< 10^4 ohm) y sin cobre fundido"
+    },
+    {
+      "constraints": [
+        "(NOT EST_DANO_LOCALIZADO OR R_AIS_LOG10_OHM >= 4.0 OR BETA_COBRE_FUNDIDO) AND NOT SIG_TIERRA_H"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigTierraH (negativo): si falta localizacion, o el aislamiento esta sano, o hay cobre fundido, no es falla por humedad"
+    },
+    {
+      "constraints": [
+        "SIG_TRM_GLOB AND CONF_OP_SOSTENIDA AND H_SOBRECARGA"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_SOBRECARGA <= SigTrmGlob AND confirmacion de operacion sostenida (Apunte 4, ec. 16)"
+    },
+    {
+      "constraints": [
+        "SIG_TRM_GLOB AND SUBTENSION_DOCUMENTADA AND H_SUBTENSION"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_SUBTENSION <= SigTrmGlob AND registro de V_red < 0.90 V_n (Apunte 4, ec. 17). Misma signatura que sobrecarga, distinta causa raiz"
+    },
+    {
+      "constraints": [
+        "SIG_1FASE AND H_1FASE"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_1FASE <= Sig1Fase (Apunte 4, ec. 18)"
+    },
+    {
+      "constraints": [
+        "SIG_SOBRET AND H_SOBRET_TRANS"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_SOBRET_TRANS <= SigSobret (Apunte 4, ec. 19)"
+    },
+    {
+      "constraints": [
+        "SIG_TIERRA_H AND H_HUMEDAD"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_HUMEDAD <= SigTierraH (Apunte 4, ec. 20)"
+    },
+    {
+      "constraints": [
+        "V_RED_REL_NOMINAL < 0.90 AND SUBTENSION_DOCUMENTADA"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "Subtension documentada (positivo): tension promedio < 0.90 V_n implica registro de subtension"
+    },
+    {
+      "constraints": [
+        "V_RED_REL_NOMINAL >= 0.90 AND NOT SUBTENSION_DOCUMENTADA"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "Subtension documentada (negativo): tension promedio >= 0.90 V_n implica que no hubo subtension significativa"
+    },
+    {
+      "constraints": [
+        "V_RED_REL_NOMINAL IN [0.5, 1.2] AND R_AIS_LOG10_OHM IN [3.0, 12.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para las variables numericas"
+    }
+  ],
+  "functions": []
+}

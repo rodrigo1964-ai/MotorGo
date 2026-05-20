@@ -1,0 +1,234 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "capa_diagnostica_rodamientos",
+    "norma": "IEC 60034-1 / ISO 15243 / NEMA MG-1 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Capa diagnostica para fallas de rodamientos y excentricidad/rozadura. Cubre clasificadores Sig_exc (rozadura estator-rotor con dano de rodamientos) y Sig_EDM (corrientes de eje, exclusivas de VFD). Hipotesis abductivas: H_rod_lub (fallo de lubricacion clasico), H_rod_EDM (electrico de descarga del eje) y H_exc_mec (excentricidad mecanica)",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte I, Secciones 3, 4.7, 4.8, 5.3"
+  },
+  "variables": [
+    {
+      "name": "ROD_DE_PITTING",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Rodamiento del lado del acoplamiento (DE, drive-end) con pitting visible (microcraters de fatiga superficial)"
+    },
+    {
+      "name": "ROD_DE_SPALLING",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Rodamiento DE con spalling (descascarado de la pista, fatiga avanzada)"
+    },
+    {
+      "name": "ROD_DE_FLUTING",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Rodamiento DE con fluting (estriado circunferencial: signatura tipica de corrientes de eje en VFD)"
+    },
+    {
+      "name": "ROD_NDE_PITTING",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Rodamiento del lado opuesto (NDE, non-drive-end) con pitting visible"
+    },
+    {
+      "name": "ROD_NDE_SPALLING",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Rodamiento NDE con spalling"
+    },
+    {
+      "name": "ROD_NDE_FLUTING",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Rodamiento NDE con fluting"
+    },
+    {
+      "name": "BETA_ROZADURA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Marcas circunferenciales de rozadura entre estator y rotor visibles al desmontar el motor"
+    },
+    {
+      "name": "BETA_VFD",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "El motor es accionado por un VFD (variador de frecuencia) o convertidor estatico"
+    },
+    {
+      "name": "ROD_HAY_DANO_FATIGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Existencial: algun rodamiento (DE o NDE) presenta pitting o spalling (dano por fatiga clasica)"
+    },
+    {
+      "name": "ROD_HAY_FLUTING",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Existencial: algun rodamiento presenta fluting (signatura electrica de descarga)"
+    },
+    {
+      "name": "ROD_HAY_NO_SANO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Existencial: algun rodamiento no esta sano (incluye pitting, spalling o fluting; necesaria para signatura de rozadura)"
+    },
+    {
+      "name": "SIG_EXC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Signatura de excentricidad / rozadura mecanica entre estator y rotor"
+    },
+    {
+      "name": "SIG_EDM",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Signatura de corrientes de eje (EDM: Electric Discharge Machining), exclusiva de motores con VFD"
+    },
+    {
+      "name": "H_ROD_LUB",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: falla de rodamientos por lubricacion deficiente, contaminacion del lubricante o carga axial/radial excesiva (mecanismo NO electrico)"
+    },
+    {
+      "name": "H_ROD_EDM",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: falla de rodamientos por corrientes de eje generadas por el VFD (mecanismo electrico)"
+    },
+    {
+      "name": "H_EXC_MEC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: excentricidad mecanica (rotor desalineado, eje doblado, base mal alineada) que produce contacto estator-rotor"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "(ROD_DE_PITTING OR ROD_DE_SPALLING OR ROD_NDE_PITTING OR ROD_NDE_SPALLING) AND ROD_HAY_DANO_FATIGA"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "RodHayDanoFatiga (positivo): existe pitting o spalling en al menos un rodamiento"
+    },
+    {
+      "constraints": [
+        "(NOT ROD_DE_PITTING AND NOT ROD_DE_SPALLING AND NOT ROD_NDE_PITTING AND NOT ROD_NDE_SPALLING) AND NOT ROD_HAY_DANO_FATIGA"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "RodHayDanoFatiga (negativo): no hay rodamiento con pitting ni spalling"
+    },
+    {
+      "constraints": [
+        "(ROD_DE_FLUTING OR ROD_NDE_FLUTING) AND ROD_HAY_FLUTING"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "RodHayFluting (positivo): existe fluting en al menos un rodamiento"
+    },
+    {
+      "constraints": [
+        "NOT ROD_DE_FLUTING AND NOT ROD_NDE_FLUTING AND NOT ROD_HAY_FLUTING"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "RodHayFluting (negativo): ningun rodamiento presenta fluting"
+    },
+    {
+      "constraints": [
+        "(ROD_HAY_DANO_FATIGA OR ROD_HAY_FLUTING) AND ROD_HAY_NO_SANO"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "RodHayNoSano (positivo): hay fatiga o fluting en algun rodamiento"
+    },
+    {
+      "constraints": [
+        "NOT ROD_HAY_DANO_FATIGA AND NOT ROD_HAY_FLUTING AND NOT ROD_HAY_NO_SANO"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "RodHayNoSano (negativo): ningun rodamiento presenta dano"
+    },
+    {
+      "constraints": [
+        "BETA_ROZADURA AND ROD_HAY_NO_SANO AND SIG_EXC"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigExc (positivo, ec. 14): rozadura visible Y rodamiento danado implica excentricidad"
+    },
+    {
+      "constraints": [
+        "(NOT BETA_ROZADURA OR NOT ROD_HAY_NO_SANO) AND NOT SIG_EXC"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigExc (negativo): sin rozadura o con rodamientos sanos, no es excentricidad"
+    },
+    {
+      "constraints": [
+        "BETA_VFD AND ROD_HAY_FLUTING AND SIG_EDM"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigEDM (positivo, ec. 15): motor con VFD Y rodamiento con fluting implica corrientes de eje"
+    },
+    {
+      "constraints": [
+        "(NOT BETA_VFD OR NOT ROD_HAY_FLUTING) AND NOT SIG_EDM"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigEDM (negativo): sin VFD o sin fluting, no es EDM"
+    },
+    {
+      "constraints": [
+        "ROD_HAY_DANO_FATIGA AND NOT BETA_VFD AND H_ROD_LUB"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_ROD_LUB <= dano de fatiga AND no hay VFD (descarta causa electrica) (ec. 23)"
+    },
+    {
+      "constraints": [
+        "SIG_EDM AND H_ROD_EDM"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_ROD_EDM <= SigEDM (ec. 24)"
+    },
+    {
+      "constraints": [
+        "SIG_EXC AND H_EXC_MEC"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_EXC_MEC <= SigExc (ec. 25)"
+    }
+  ],
+  "functions": []
+}

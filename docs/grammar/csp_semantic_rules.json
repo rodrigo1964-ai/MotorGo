@@ -1,0 +1,214 @@
+{
+  "$schema": "https://motorinferencia.unsj/csp_semantic_rules_meta.json",
+  "$id": "https://motorinferencia.unsj/csp_semantic_rules.json",
+  "title": "CSP Model — Reglas semanticas R1, R2, R3, R4, R6, R7, R8",
+  "description": "Especificacion formal en logica de primer orden de los invariantes semanticos cruzados que SyntaxChecker.pas verifica sobre un JSON ya estructuralmente valido (R0) y con todos los constraints parseables (R5). Cada regla se expresa como una formula cuantificada sobre el JSON usando JSONPath para el dominio de cuantificacion y un conjunto de predicados primitivos definidos abajo. Este archivo es spec, no codigo: el motor real implementa estas reglas en SyntaxChecker.pas; el archivo existe para auditarlas sin leer Pascal.",
+  "version": "1.0",
+
+  "primitive_predicates": {
+    "ast_references_identifier": {
+      "signature": "ast_references_identifier(constraint_text: string, ident: string) -> bool",
+      "semantics": "True sii el AST resultante de Pratt-parsear constraint_text contiene al menos un nodo identificador cuyo nombre (normalizado a UPPERCASE) iguala ident (tambien normalizado).",
+      "implementation_hint": "PrattParser.Parse(text); walk(root, lambda n: n.kind == 'identifier' && n.name == ident.upper())"
+    },
+    "ast_calls_function": {
+      "signature": "ast_calls_function(constraint_text: string, fname: string) -> bool",
+      "semantics": "True sii el AST contiene al menos un nodo de llamada a funcion cuyo nombre iguala fname (case-insensitive)."
+    },
+    "ast_function_calls": {
+      "signature": "ast_function_calls(constraint_text: string) -> list[FunctionCallNode]",
+      "semantics": "Lista (posiblemente vacia) de todos los nodos de llamada a funcion del AST. Cada nodo tiene .name y .args (lista de subarboles)."
+    },
+    "ast_identifiers": {
+      "signature": "ast_identifiers(constraint_text: string) -> list[string]",
+      "semantics": "Lista (posiblemente vacia) de todos los identificadores que aparecen como atomos en el AST (excluyendo nombres de funciones llamadas)."
+    },
+    "value_subset_of_domain": {
+      "signature": "value_subset_of_domain(variable: Variable) -> bool",
+      "semantics": "Verificacion type-dependent: para boolean siempre true (el schema R0 ya restringe el formato); para numeric/integer requiere domain[0] <= value[0] AND value[1] <= domain[1]; para set requiere que cada elemento de value pertenezca a domain."
+    },
+    "arity_matches_declaration": {
+      "signature": "arity_matches_declaration(call: FunctionCallNode, declarations: list[Function], builtins: BuiltinTable) -> bool",
+      "semantics": "Resuelve call.name contra declarations (user-defined) o builtins. Si la funcion declara aridad fija N, la llamada debe tener exactamente N args. Si la funcion tiene aridad variable (p.ej. LOG acepta 1 o 2), call.args.length debe estar dentro del rango admisible."
+    },
+    "name_in_builtins": {
+      "signature": "name_in_builtins(name: string) -> bool",
+      "semantics": "True sii name (case-insensitive) figura en la tabla de funciones builtin del motor (SIN, COS, EXP, LOG, ABS, SQRT, MIN, MAX, etc.)."
+    },
+    "name_in_declared_variables": {
+      "signature": "name_in_declared_variables(name: string, declared: list[Variable]) -> bool",
+      "semantics": "True sii name (case-insensitive) iguala alguno de declared[i].name."
+    },
+    "name_in_literals_table": {
+      "signature": "name_in_literals_table(name: string, model: Model) -> bool",
+      "semantics": "True sii name pertenece al conjunto: { 'TRUE', 'FALSE' } UNION (elementos de domain de todas las variables tipo set). Estos identificadores son literales del lenguaje, no variables de usuario."
+    }
+  },
+
+  "quantifier_syntax": {
+    "description": "Las formulas usan cuantificadores anidados. Cada nivel se expresa como un objeto con kind=forall|exists, binding=nombre_variable_local, domain=JSONPath. El body al final puede ser un predicate, una negation, una conjunction (and), una disjunction (or), o una implication (implies con antecedent/consequent).",
+    "binding_dereference": "Para acceder a un atributo del binding actual: @binding.atributo. Para usar el binding completo como argumento: @binding. Para acceder al modelo raiz: $."
+  },
+
+  "rules": [
+
+    {
+      "id": "R1",
+      "title": "Variable declarada -> usada en alguna expresion",
+      "category": "well_formedness",
+      "severity": "error",
+      "natural_language": "Toda variable declarada en $.variables debe aparecer como identificador en al menos un constraint string de $.expressions. El proposito es detectar variables muertas que pueden indicar copy-paste, capa equivocada o refactor incompleto.",
+      "formal": {
+        "quantifier_chain": [
+          { "kind": "forall", "binding": "v", "domain": "$.variables[*]" },
+          { "kind": "exists", "binding": "c", "domain": "$.expressions[*].constraints[*]" }
+        ],
+        "body": {
+          "predicate": "ast_references_identifier",
+          "args": ["@c", "@v.name"]
+        }
+      },
+      "error_template": "Variable '{v.name}' declarada pero no usada en ninguna expresion",
+      "implemented_at": "SyntaxChecker.pas, procedure CheckR1_VariablesUsed"
+    },
+
+    {
+      "id": "R2",
+      "title": "Funcion user-defined -> llamada en alguna expresion",
+      "category": "well_formedness",
+      "severity": "error",
+      "natural_language": "Toda funcion declarada en $.functions (excluyendo builtins, que viven fuera del JSON) debe ser invocada en al menos un constraint. Funciones declaradas pero no llamadas son ruido.",
+      "formal": {
+        "quantifier_chain": [
+          { "kind": "forall", "binding": "f", "domain": "$.functions[*]" },
+          { "kind": "exists", "binding": "c", "domain": "$.expressions[*].constraints[*]" }
+        ],
+        "body": {
+          "predicate": "ast_calls_function",
+          "args": ["@c", "@f.name"]
+        }
+      },
+      "error_template": "Funcion '{f.name}' declarada pero nunca invocada",
+      "implemented_at": "SyntaxChecker.pas, procedure CheckR2_FunctionsUsed"
+    },
+
+    {
+      "id": "R3",
+      "title": "Identificador en expresion -> declarado como variable o literal",
+      "category": "reference_integrity",
+      "severity": "error",
+      "natural_language": "Todo identificador que aparece como atomo en algun AST de constraint debe resolver contra: (i) una variable declarada en $.variables, o (ii) la tabla de literales del lenguaje (TRUE, FALSE, y los elementos de domain de las variables tipo set). Identificadores no resolubles producen error.",
+      "formal": {
+        "quantifier_chain": [
+          { "kind": "forall", "binding": "c",  "domain": "$.expressions[*].constraints[*]" },
+          { "kind": "forall", "binding": "id", "domain": "ast_identifiers(@c)" }
+        ],
+        "body": {
+          "or": [
+            { "predicate": "name_in_declared_variables", "args": ["@id", "$.variables[*]"] },
+            { "predicate": "name_in_literals_table",     "args": ["@id", "$"] }
+          ]
+        }
+      },
+      "error_template": "Identificador '{id}' en expresion no esta declarado como variable ni es literal del lenguaje",
+      "implemented_at": "SyntaxChecker.pas, procedure CheckR3_IdentifiersDeclared"
+    },
+
+    {
+      "id": "R4",
+      "title": "Llamada a funcion en expresion -> funcion declarada o builtin",
+      "category": "reference_integrity",
+      "severity": "error",
+      "natural_language": "Todo nombre que aparece en posicion de funcion (sintacticamente: IDENT seguido de '(') debe resolver contra una funcion declarada en $.functions o ser una builtin del motor. Llamadas a funciones inexistentes producen error.",
+      "formal": {
+        "quantifier_chain": [
+          { "kind": "forall", "binding": "c",    "domain": "$.expressions[*].constraints[*]" },
+          { "kind": "forall", "binding": "call", "domain": "ast_function_calls(@c)" }
+        ],
+        "body": {
+          "or": [
+            { "exists": { "binding": "f", "domain": "$.functions[*]" },
+              "predicate": "name_equals", "args": ["@f.name", "@call.name"] },
+            { "predicate": "name_in_builtins", "args": ["@call.name"] }
+          ]
+        }
+      },
+      "error_template": "Funcion '{call.name}' invocada pero no declarada (no es user-defined ni builtin)",
+      "implemented_at": "SyntaxChecker.pas, procedure CheckR4_FunctionCallsResolved"
+    },
+
+    {
+      "id": "R6",
+      "title": "value es subconjunto de domain (segun el tipo de la variable)",
+      "category": "domain_consistency",
+      "severity": "error",
+      "natural_language": "Para cada variable, el campo value debe ser un subconjunto del campo domain en el sentido apropiado a su tipo: boolean -> trivial; numeric e integer -> intervalo value contenido en intervalo domain; set -> cada elemento de value debe pertenecer a domain.",
+      "formal": {
+        "quantifier_chain": [
+          { "kind": "forall", "binding": "v", "domain": "$.variables[*]" }
+        ],
+        "body": {
+          "predicate": "value_subset_of_domain",
+          "args": ["@v"]
+        }
+      },
+      "error_template": "Variable '{v.name}' tipo {v.type}: value={v.value} no esta contenido en domain={v.domain}",
+      "implemented_at": "SyntaxChecker.pas, procedure CheckR6_ValueInDomain"
+    },
+
+    {
+      "id": "R7",
+      "title": "Aridad de llamada coincide con aridad declarada",
+      "category": "type_consistency",
+      "severity": "error",
+      "natural_language": "Para cada llamada a funcion encontrada en algun constraint, la cantidad de argumentos pasados debe coincidir con la aridad de la declaracion correspondiente (o estar dentro del rango admisible si la funcion tiene aridad variable, como LOG que acepta 1 o 2 args).",
+      "formal": {
+        "quantifier_chain": [
+          { "kind": "forall", "binding": "c",    "domain": "$.expressions[*].constraints[*]" },
+          { "kind": "forall", "binding": "call", "domain": "ast_function_calls(@c)" }
+        ],
+        "body": {
+          "predicate": "arity_matches_declaration",
+          "args": ["@call", "$.functions[*]", "<builtin_table>"]
+        }
+      },
+      "error_template": "Funcion '{call.name}' invocada con {call.args.length} args; se esperaban {expected}",
+      "implemented_at": "SyntaxChecker.pas, procedure CheckR7_Arity"
+    },
+
+    {
+      "id": "R8",
+      "title": "No es legal redeclarar una funcion builtin",
+      "category": "name_space",
+      "severity": "error",
+      "natural_language": "Ningun nombre declarado en $.functions puede coincidir con un nombre de funcion builtin del motor (SIN, COS, EXP, LOG, etc.). El motivo es preservar la semantica determinista del builtin: si el usuario redefine LOG, las expresiones del modelo dejan de tener un significado fijo.",
+      "formal": {
+        "quantifier_chain": [
+          { "kind": "forall", "binding": "f", "domain": "$.functions[*]" }
+        ],
+        "body": {
+          "negation": {
+            "predicate": "name_in_builtins",
+            "args": ["@f.name"]
+          }
+        }
+      },
+      "error_template": "Funcion '{f.name}' declarada por el usuario colisiona con builtin del motor: redeclaracion prohibida",
+      "implemented_at": "SyntaxChecker.pas, procedure CheckR8_NoBuiltinOverride"
+    }
+
+  ],
+
+  "rules_not_covered_here": {
+    "R0": "Estructura JSON del modelo. Spec en csp_model_schema.json (formato JSON Schema Draft 2020-12).",
+    "R5": "Constraint parseable. Spec en csp_grammar.l y csp_grammar.y (formato flex/bison)."
+  },
+
+  "execution_pipeline": [
+    "1. Leer el JSON del modelo.",
+    "2. Validar contra csp_model_schema.json (R0). Si falla, abortar.",
+    "3. Para cada string en $.expressions[*].constraints[*], parsear con csp_grammar (R5). Si alguno falla, registrar error y continuar.",
+    "4. Si R0 y R5 pasaron, evaluar cada regla R1..R4, R6..R8 segun la formula declarada arriba.",
+    "5. Salida: { status: 'ok' | 'error', errors: [{rule, message, location}, ...] }"
+  ]
+}

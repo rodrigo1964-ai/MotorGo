@@ -1,0 +1,182 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "capa_diagnostica_rotor",
+    "norma": "IEC 60034-1 / NEMA MG-1 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Capa diagnostica para fallas del rotor jaula. Cubre el predicado de concurrencia estator-rotor (Concer), los clasificadores de arranques repetidos y locked rotor, y las hipotesis abductivas H_arr_rep y H_locked_rotor. Existencializacion: la variable categorica sigma_rot se aplana en tres booleanas excluyentes (barras agrietadas, anillo fracturado, refusion)",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte I, Secciones 3.4, 4.4, 4.5, 5.2"
+  },
+  "variables": [
+    {
+      "name": "N_ARR_POR_HORA",
+      "type": "numeric",
+      "domain": [0.0, 60.0],
+      "value": [0.0, 4.0],
+      "section": "predicados_derivados",
+      "description": "Frecuencia efectiva de arranques por hora durante el periodo previo a la falla. Incluye ciclos espurios si los hubo"
+    },
+    {
+      "name": "N_ARR_MAX_ADMISIBLE",
+      "type": "numeric",
+      "domain": [1.0, 30.0],
+      "value": [10.0, 10.0],
+      "section": "predicados_derivados",
+      "description": "Cota superior de arranques por hora admisible por catalogo o regla practica. Default = 10/h"
+    },
+    {
+      "name": "ROTOR_BARRAS_AGRIETADAS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Barras del rotor agrietadas o quebradas visibles al abrir el motor"
+    },
+    {
+      "name": "ROTOR_ANILLO_FRACTURADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Anillo de cortocircuito del rotor fracturado o con grietas"
+    },
+    {
+      "name": "ROTOR_REFUSION_BARRAS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Refusion de barras visible (dano severo irrecuperable: el rotor fundio el aluminio o cobre de las barras)"
+    },
+    {
+      "name": "EST_HAY_FASE_SEVERA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Existencial: alguna fase del estator presenta dano severo (entrada cruzada desde la capa de estator)"
+    },
+    {
+      "name": "EST_DANO_UNIFORME_ROT",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Unifest: las tres fases del estator presentan el mismo grado de dano y al menos una no esta sana (entrada cruzada desde la capa de estator; necesaria para clasificar locked rotor)"
+    },
+    {
+      "name": "BETA_EV_MEC_EXT",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Evidencia mecanica externa de la causa de bloqueo: objeto extrano, cinta atascada, transportadora trabada, eje doblado"
+    },
+    {
+      "name": "CONCER",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Concurrencia estator-rotor: existe una fase del estator severamente danada Y el rotor presenta barras agrietadas, anillo fracturado o refusion"
+    },
+    {
+      "name": "SIG_ARR_REP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Signatura de arranques repetidos sin enfriamiento del rotor (rotor con barras o anillo dano, sin dano severo del estator)"
+    },
+    {
+      "name": "SIG_LOCK",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Signatura de locked rotor (rotor bloqueado mecanicamente durante el arranque, quema severa y uniforme del estator)"
+    },
+    {
+      "name": "H_ARR_REP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: arranques repetidos a frecuencia superior al limite admisible, sin tiempo de enfriamiento del rotor"
+    },
+    {
+      "name": "H_LOCKED_ROTOR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis: rotor bloqueado por obstaculo mecanico (objeto extrano, cinta trabada, atasco de carga)"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "EST_HAY_FASE_SEVERA AND (ROTOR_BARRAS_AGRIETADAS OR ROTOR_ANILLO_FRACTURADO OR ROTOR_REFUSION_BARRAS) AND CONCER"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "Concer (positivo, ec. 4): existe fase severa Y rotor con barras/anillo/refusion"
+    },
+    {
+      "constraints": [
+        "(NOT EST_HAY_FASE_SEVERA OR (NOT ROTOR_BARRAS_AGRIETADAS AND NOT ROTOR_ANILLO_FRACTURADO AND NOT ROTOR_REFUSION_BARRAS)) AND NOT CONCER"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "Concer (negativo): sin fase severa o sin dano de jaula, no hay concurrencia"
+    },
+    {
+      "constraints": [
+        "(ROTOR_BARRAS_AGRIETADAS OR ROTOR_ANILLO_FRACTURADO) AND NOT EST_HAY_FASE_SEVERA AND SIG_ARR_REP"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigArrRep (positivo, ec. 11): rotor con barras o anillo dano Y estator sin fase severa (todas en sano o ligero)"
+    },
+    {
+      "constraints": [
+        "((NOT ROTOR_BARRAS_AGRIETADAS AND NOT ROTOR_ANILLO_FRACTURADO) OR EST_HAY_FASE_SEVERA) AND NOT SIG_ARR_REP"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigArrRep (negativo): sin dano del rotor o con fase severa, no es signatura de arranques repetidos"
+    },
+    {
+      "constraints": [
+        "CONCER AND EST_DANO_UNIFORME_ROT AND SIG_LOCK"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigLock (positivo, ec. 12): concurrencia estator-rotor con dano uniforme del estator"
+    },
+    {
+      "constraints": [
+        "(NOT CONCER OR NOT EST_DANO_UNIFORME_ROT) AND NOT SIG_LOCK"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "SigLock (negativo): sin concurrencia o sin uniformidad, no es locked rotor"
+    },
+    {
+      "constraints": [
+        "SIG_ARR_REP AND N_ARR_POR_HORA > N_ARR_MAX_ADMISIBLE AND H_ARR_REP"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_ARR_REP <= SigArrRep AND frecuencia de arranques supera la cota admisible (Apunte 4, ec. 21)"
+    },
+    {
+      "constraints": [
+        "SIG_LOCK AND BETA_EV_MEC_EXT AND H_LOCKED_ROTOR"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "H_LOCKED_ROTOR <= SigLock AND evidencia mecanica externa de bloqueo (Apunte 4, ec. 22)"
+    },
+    {
+      "constraints": [
+        "N_ARR_POR_HORA IN [0.0, 60.0] AND N_ARR_MAX_ADMISIBLE IN [1.0, 30.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para las variables numericas"
+    }
+  ],
+  "functions": []
+}

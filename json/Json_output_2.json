@@ -1,0 +1,684 @@
+{
+		"variables": [
+			{
+				"name": "INSPECCION_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 0
+			},
+			{
+				"name": "PRUEBA_TRACCION_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 1
+			},
+			{
+				"name": "PRUEBA_DOBLADO_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 2
+			},
+			{
+				"name": "PRECALENTAMIENTO_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 3
+			},
+			{
+				"name": "PWHT_APLICADO",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					false
+				],
+				"id": 4
+			},
+			{
+				"name": "PROCESO",
+				"type": "set",
+				"domain": [
+					"SMAW",
+					"GMAW",
+					"FCAW",
+					"SAW"
+				],
+				"value": [
+					"SMAW"
+				],
+				"id": 5
+			},
+			{
+				"name": "ELECTRODO",
+				"type": "set",
+				"domain": [
+					"E6010",
+					"E7016",
+					"E7018",
+					"E8018"
+				],
+				"value": [
+					"E7018"
+				],
+				"id": 6
+			},
+			{
+				"name": "POSICION",
+				"type": "set",
+				"domain": [
+					"POS1G",
+					"POS2G",
+					"POS3G",
+					"POS4G"
+				],
+				"value": [
+					"POS1G",
+					"POS2G"
+				],
+				"id": 7
+			},
+			{
+				"name": "PASES",
+				"type": "integer",
+				"domain": [
+					1,
+					2,
+					3,
+					4,
+					5,
+					6,
+					7,
+					8
+				],
+				"value": [
+					4,
+					5,
+					6
+				],
+				"id": 8
+			},
+			{
+				"name": "AMPERAJE",
+				"type": "integer",
+				"domain": [
+					100,
+					110,
+					120,
+					130,
+					140,
+					150,
+					160,
+					170,
+					180
+				],
+				"value": [
+					140,
+					150,
+					160
+				],
+				"id": 9
+			},
+			{
+				"name": "VOLTAJE_V",
+				"type": "numeric",
+				"domain": [
+					18,
+					32
+				],
+				"value": [
+					22,
+					25
+				],
+				"id": 10
+			}
+		],
+		"functions": [],
+		"constraints": [
+			{
+				"id": 0,
+				"expr": "INSPECCION_OK = true",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "INSPECCION_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					0
+				],
+				"func_refs": []
+			},
+			{
+				"id": 1,
+				"expr": "PRUEBA_TRACCION_OK = true AND PRUEBA_DOBLADO_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PRUEBA_TRACCION_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "PRUEBA_DOBLADO_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					1,
+					2
+				],
+				"func_refs": []
+			},
+			{
+				"id": 2,
+				"expr": "PRECALENTAMIENTO_OK = true",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PRECALENTAMIENTO_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					3
+				],
+				"func_refs": []
+			},
+			{
+				"id": 3,
+				"expr": "PWHT_APLICADO = false",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PWHT_APLICADO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "FALSE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					4
+				],
+				"func_refs": []
+			},
+			{
+				"id": 4,
+				"expr": "PROCESO IN {SMAW, GMAW}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PROCESO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "SMAW"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "GMAW"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					5
+				],
+				"func_refs": []
+			},
+			{
+				"id": 5,
+				"expr": "ELECTRODO IN {E7016, E7018, E8018}",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ELECTRODO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "E7016"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "E7018"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "E8018"
+					},
+					{
+						"id": 4,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3
+						]
+					},
+					{
+						"id": 5,
+						"type": "In",
+						"left": 0,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					6
+				],
+				"func_refs": []
+			},
+			{
+				"id": 6,
+				"expr": "POSICION IN {POS1G, POS2G, POS3G, POS4G}",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "POSICION"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "POS1G"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "POS2G"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "POS3G"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "POS4G"
+					},
+					{
+						"id": 5,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3,
+							4
+						]
+					},
+					{
+						"id": 6,
+						"type": "In",
+						"left": 0,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					7
+				],
+				"func_refs": []
+			},
+			{
+				"id": 7,
+				"expr": "PASES IN [3, 8]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PASES"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 3
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 8
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 8,
+				"expr": "AMPERAJE IN [130, 170]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "AMPERAJE"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 130
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 170
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					9
+				],
+				"func_refs": []
+			},
+			{
+				"id": 9,
+				"expr": "VOLTAJE_V IN [20.0, 28.0]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "VOLTAJE_V"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 20
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 28
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 10,
+				"expr": "PASES >= 3 AND AMPERAJE >= 130",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PASES"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 3
+					},
+					{
+						"id": 2,
+						"type": "GreaterEq",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "AMPERAJE"
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 130
+					},
+					{
+						"id": 5,
+						"type": "GreaterEq",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					8,
+					9
+				],
+				"func_refs": []
+			}
+		],
+		"adjacency": [
+			{
+				"var_id": 0,
+				"name": "INSPECCION_OK",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 1,
+				"name": "PRUEBA_TRACCION_OK",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 2,
+				"name": "PRUEBA_DOBLADO_OK",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 3,
+				"name": "PRECALENTAMIENTO_OK",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 4,
+				"name": "PWHT_APLICADO",
+				"constraint_ids": [
+					3
+				]
+			},
+			{
+				"var_id": 5,
+				"name": "PROCESO",
+				"constraint_ids": [
+					4
+				]
+			},
+			{
+				"var_id": 6,
+				"name": "ELECTRODO",
+				"constraint_ids": [
+					5
+				]
+			},
+			{
+				"var_id": 7,
+				"name": "POSICION",
+				"constraint_ids": [
+					6
+				]
+			},
+			{
+				"var_id": 8,
+				"name": "PASES",
+				"constraint_ids": [
+					7,
+					10
+				]
+			},
+			{
+				"var_id": 9,
+				"name": "AMPERAJE",
+				"constraint_ids": [
+					8,
+					10
+				]
+			},
+			{
+				"var_id": 10,
+				"name": "VOLTAJE_V",
+				"constraint_ids": [
+					9
+				]
+			}
+		]
+	}

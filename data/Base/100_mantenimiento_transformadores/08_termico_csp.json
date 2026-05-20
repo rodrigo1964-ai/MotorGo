@@ -1,0 +1,329 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "termico_vida_acumulada",
+    "norma": "IEEE C57.91-2011 / IEC 60076-7",
+    "descripcion": "Modelo termico hot-spot estacionario, velocidad relativa de envejecimiento por Arrhenius, integracion discreta de vida acumulada y convergencia con estimaciones de DP por furanos. Diagnostico del regimen termico del transformador y deteccion de inconsistencias termica-quimica",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte II, Seccion 10"
+  },
+  "variables": [
+    {
+      "name": "TEMP_AMBIENTE_C",
+      "type": "numeric",
+      "domain": [-30.0, 60.0],
+      "value": [20.0, 40.0],
+      "section": "predicados_derivados",
+      "description": "Temperatura ambiente promedio, en C"
+    },
+    {
+      "name": "TEMP_TOP_OIL_C",
+      "type": "numeric",
+      "domain": [0.0, 120.0],
+      "value": [50.0, 80.0],
+      "section": "predicados_derivados",
+      "description": "Temperatura del top-oil al regimen, en C"
+    },
+    {
+      "name": "TEMP_HOT_SPOT_C",
+      "type": "numeric",
+      "domain": [0.0, 200.0],
+      "value": [70.0, 110.0],
+      "section": "predicados_derivados",
+      "description": "Temperatura hot-spot del bobinado, en C"
+    },
+    {
+      "name": "CARGA_RELATIVA_PU",
+      "type": "numeric",
+      "domain": [0.0, 2.0],
+      "value": [0.5, 1.0],
+      "section": "predicados_derivados",
+      "description": "Carga relativa K = S_carga / S_nominal en p.u."
+    },
+    {
+      "name": "V_ENVEJECIMIENTO_RELATIVA",
+      "type": "numeric",
+      "domain": [0.0, 50.0],
+      "value": [0.7, 1.3],
+      "section": "predicados_derivados",
+      "description": "Velocidad relativa de envejecimiento V(theta_H) por Arrhenius (1.0 = a 110C nominal)"
+    },
+    {
+      "name": "V_PROMEDIO",
+      "type": "numeric",
+      "domain": [0.0, 10.0],
+      "value": [0.7, 1.3],
+      "section": "predicados_derivados",
+      "description": "Velocidad de envejecimiento promedio = L / (Edad_calendario * 8760h)"
+    },
+    {
+      "name": "VIDA_ACUMULADA_H",
+      "type": "numeric",
+      "domain": [0.0, 500000.0],
+      "value": [0.0, 150000.0],
+      "section": "predicados_derivados",
+      "description": "Vida acumulada por integracion del envejecimiento, en horas"
+    },
+    {
+      "name": "VIDA_NOMINAL_H",
+      "type": "numeric",
+      "domain": [150000.0, 180000.0],
+      "value": [150000.0, 180000.0],
+      "section": "configuracion",
+      "description": "Vida nominal del papel: 150000h para kraft, 180000h para TUK"
+    },
+    {
+      "name": "FRACCION_VIDA_CONSUMIDA",
+      "type": "numeric",
+      "domain": [0.0, 3.0],
+      "value": [0.0, 1.0],
+      "section": "predicados_derivados",
+      "description": "Fraccion de vida consumida: VIDA_ACUMULADA_H / VIDA_NOMINAL_H"
+    },
+    {
+      "name": "TIPO_PAPEL_KRAFT",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "configuracion",
+      "description": "Papel celulosico kraft estandar"
+    },
+    {
+      "name": "TIPO_PAPEL_TUK",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "configuracion",
+      "description": "Papel termoestabilizado (TUK)"
+    },
+    {
+      "name": "DP_TERMICO_ESTIMADO",
+      "type": "numeric",
+      "domain": [100.0, 1500.0],
+      "value": [800.0, 1500.0],
+      "section": "convergencia",
+      "description": "DP estimado por integracion termica historica (Arrhenius sobre carga y temperaturas)"
+    },
+    {
+      "name": "DP_FURANOS_ESTIMADO",
+      "type": "numeric",
+      "domain": [100.0, 1500.0],
+      "value": [800.0, 1500.0],
+      "section": "convergencia",
+      "description": "DP estimado por furanos (Chendong)"
+    },
+    {
+      "name": "DELTA_DP_TERMICO_QUIMICO",
+      "type": "numeric",
+      "domain": [0.0, 1000.0],
+      "value": [0.0, 100.0],
+      "section": "convergencia",
+      "description": "Valor absoluto de la diferencia DP_TERMICO - DP_FURANOS"
+    },
+    {
+      "name": "EST_TERM_LIVIANO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Regimen termico liviano: V_PROMEDIO < 0.7 (subutilizado, larga vida esperada)"
+    },
+    {
+      "name": "EST_TERM_NORMAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "clasificadores",
+      "description": "Regimen termico normal: V_PROMEDIO en [0.7, 1.3]"
+    },
+    {
+      "name": "EST_TERM_INTENSIVO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Regimen termico intensivo: V_PROMEDIO en (1.3, 2.0]"
+    },
+    {
+      "name": "EST_TERM_SOBRECARGA_CRITICA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Sobrecarga termica critica: V_PROMEDIO > 2.0"
+    },
+    {
+      "name": "FIN_VIDA_TERMICA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Fin de vida termica: FRACCION_VIDA_CONSUMIDA >= 1.0"
+    },
+    {
+      "name": "DP_CONVERGENTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "convergencia",
+      "description": "DP convergente: |DP_TERMICO - DP_FURANOS| < 100 (los dos metodos coinciden razonablemente)"
+    },
+    {
+      "name": "H_TRATAMIENTO_PREVIO_NO_DOCUMENTADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: tratamiento previo no documentado. Inferido cuando DP_FURANOS > DP_TERMICO + 200 (furanos sugiere papel mejor de lo que el calculo termico predice)"
+    },
+    {
+      "name": "H_REGISTROS_INCOMPLETOS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: registros de carga/temperatura incompletos. Inferido cuando DP_TERMICO > DP_FURANOS + 200 sin tratamiento documentado (el papel envejecio mas de lo que registros indican)"
+    },
+    {
+      "name": "A_OPERACION_NORMAL_TERMICA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "acciones",
+      "description": "Accion: operacion normal. Inferido cuando regimen liviano o normal"
+    },
+    {
+      "name": "A_REDUCIR_CARGA_PICO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: reducir carga pico. Inferido cuando regimen intensivo"
+    },
+    {
+      "name": "A_INTERVENCION_TERMICA_URGENTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: intervencion termica urgente. Inferido cuando sobrecarga critica"
+    },
+    {
+      "name": "A_PLANIFICAR_REEMPLAZO_TERMICO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: planificar reemplazo. Inferido cuando fin de vida termica"
+    },
+    {
+      "name": "A_RECONCILIAR_DATOS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: reconciliar datos termicos y quimicos. Inferido cuando alguna hipotesis de inconsistencia se disparo"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "V_PROMEDIO < 0.7 AND EST_TERM_LIVIANO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Regimen termico liviano"
+    },
+    {
+      "constraints": [
+        "V_PROMEDIO >= 0.7 AND V_PROMEDIO <= 1.3 AND EST_TERM_NORMAL"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Regimen termico normal"
+    },
+    {
+      "constraints": [
+        "V_PROMEDIO > 1.3 AND V_PROMEDIO <= 2.0 AND EST_TERM_INTENSIVO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Regimen termico intensivo"
+    },
+    {
+      "constraints": [
+        "V_PROMEDIO > 2.0 AND EST_TERM_SOBRECARGA_CRITICA"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Sobrecarga termica critica"
+    },
+    {
+      "constraints": [
+        "FRACCION_VIDA_CONSUMIDA >= 1.0 AND FIN_VIDA_TERMICA"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Fin de vida termica alcanzado"
+    },
+    {
+      "constraints": [
+        "DELTA_DP_TERMICO_QUIMICO < 100.0 AND DP_CONVERGENTE"
+      ],
+      "_group": "convergencia",
+      "description": "DP convergente: termico y quimico coinciden"
+    },
+    {
+      "constraints": [
+        "DP_FURANOS_ESTIMADO > DP_TERMICO_ESTIMADO + 200.0 AND H_TRATAMIENTO_PREVIO_NO_DOCUMENTADO"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Tratamiento previo no documentado: furanos parecen demasiado bajos para la edad termica"
+    },
+    {
+      "constraints": [
+        "DP_TERMICO_ESTIMADO > DP_FURANOS_ESTIMADO + 200.0 AND H_REGISTROS_INCOMPLETOS"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Registros incompletos: papel envejecio mas de lo que termica registrada sugiere"
+    },
+    {
+      "constraints": [
+        "(EST_TERM_LIVIANO OR EST_TERM_NORMAL) AND A_OPERACION_NORMAL_TERMICA"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion operacion normal cuando regimen liviano o normal"
+    },
+    {
+      "constraints": [
+        "EST_TERM_INTENSIVO AND A_REDUCIR_CARGA_PICO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion reducir carga pico cuando regimen intensivo"
+    },
+    {
+      "constraints": [
+        "EST_TERM_SOBRECARGA_CRITICA AND A_INTERVENCION_TERMICA_URGENTE"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion intervencion urgente cuando sobrecarga critica"
+    },
+    {
+      "constraints": [
+        "FIN_VIDA_TERMICA AND A_PLANIFICAR_REEMPLAZO_TERMICO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion planificar reemplazo cuando fin de vida termica"
+    },
+    {
+      "constraints": [
+        "(H_TRATAMIENTO_PREVIO_NO_DOCUMENTADO OR H_REGISTROS_INCOMPLETOS) AND A_RECONCILIAR_DATOS"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion reconciliar datos ante discrepancia termica-quimica"
+    },
+    {
+      "constraints": [
+        "TEMP_AMBIENTE_C IN [-30.0, 60.0] AND TEMP_HOT_SPOT_C IN [0.0, 200.0] AND CARGA_RELATIVA_PU IN [0.0, 2.0] AND V_PROMEDIO IN [0.0, 10.0] AND FRACCION_VIDA_CONSUMIDA IN [0.0, 3.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio"
+    }
+  ],
+  "functions": []
+}

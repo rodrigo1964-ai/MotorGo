@@ -1,0 +1,28 @@
+{
+  "description": "Configuracion de red de computadoras",
+  "variables": [
+    { "name": "ENLACE_ACTIVO", "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "FIREWALL_OK",   "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "VPN_ACTIVA",    "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "DHCP_ACTIVO",   "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "REDUNDANCIA",   "type": "boolean", "domain": [true, false], "value": [false] },
+    { "name": "PROTOCOLO", "type": "set", "domain": ["TCP","UDP","HTTP","HTTPS"],       "value": ["TCP","HTTPS"] },
+    { "name": "CLASE_IP",  "type": "set", "domain": ["CLASE_A","CLASE_B","CLASE_C"],  "value": ["CLASE_B"] },
+    { "name": "TOPOLOGIA", "type": "set", "domain": ["ESTRELLA","MALLA","ANILLO","BUS"], "value": ["ESTRELLA"] },
+    { "name": "ANCHO_BANDA",   "type": "integer", "domain": [10,100,500,1000,2000,5000,10000], "value": [1000,2000,5000] },
+    { "name": "LATENCIA",      "type": "integer", "domain": [1,2,5,10,15,20,25,50,100],        "value": [5,10,15] },
+    { "name": "DISPONIBILIDAD","type": "numeric", "domain": [95.0, 100.0],                     "value": [99.0, 99.9] }
+  ],
+  "expressions": [
+    { "constraints": ["ENLACE_ACTIVO = true AND FIREWALL_OK = true"] },
+    { "constraints": ["VPN_ACTIVA = true"] },
+    { "constraints": ["DHCP_ACTIVO = true AND REDUNDANCIA = false"] },
+    { "constraints": ["PROTOCOLO IN {TCP, HTTPS}"] },
+    { "constraints": ["CLASE_IP IN {CLASE_A, CLASE_B, CLASE_C}"] },
+    { "constraints": ["TOPOLOGIA IN {ESTRELLA, MALLA}"] },
+    { "constraints": ["ANCHO_BANDA IN [500, 10000]"] },
+    { "constraints": ["LATENCIA IN [1, 20]"] },
+    { "constraints": ["DISPONIBILIDAD IN [99.0, 100.0]"] },
+    { "constraints": ["ANCHO_BANDA >= 1000 AND LATENCIA <= 20"] }
+  ]
+}

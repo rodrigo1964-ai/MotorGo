@@ -1,0 +1,296 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "ttr_resistencia_devanados",
+    "norma": "IEEE C57.152 / IEC 60076-1 / IEC 60076-19",
+    "descripcion": "Ensayos electricos: relacion de transformacion (TTR) y resistencia DC de devanados. Diagnostico de corto entre espiras, conexion floja, falla de contacto OLTC, conductor abierto, error de conexion. Existencializacion: los predicados con argumentos (fase, posicion, devanado) del documento de ecuaciones logicas se aplanan a versiones existenciales 'existe una fase/posicion donde se cumple X'",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte I, Seccion 3"
+  },
+  "variables": [
+    {
+      "name": "DELTA_TTR_PCT",
+      "type": "numeric",
+      "domain": [0.0, 5.0],
+      "value": [0.0, 0.5],
+      "section": "predicados_derivados",
+      "description": "Desviacion relativa de TTR medida respecto a placa: |TTR_med - TTR_nom| / TTR_nom * 100"
+    },
+    {
+      "name": "ASIM_TTR_PCT",
+      "type": "numeric",
+      "domain": [0.0, 5.0],
+      "value": [0.0, 0.3],
+      "section": "predicados_derivados",
+      "description": "Asimetria de TTR entre fases en una posicion del OLTC"
+    },
+    {
+      "name": "ASIM_R_PCT",
+      "type": "numeric",
+      "domain": [0.0, 10.0],
+      "value": [0.0, 2.0],
+      "section": "predicados_derivados",
+      "description": "Asimetria de resistencia DC corregida a 20C entre fases"
+    },
+    {
+      "name": "ERROR_ANGULO_TTR_GRADOS",
+      "type": "numeric",
+      "domain": [0.0, 30.0],
+      "value": [0.0, 10.0],
+      "section": "predicados_derivados",
+      "description": "Error de angulo de fase del TTR respecto al valor nominal"
+    },
+    {
+      "name": "FUERA_TOL_TTR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Existe al menos una fase y posicion del OLTC con DELTA_TTR_PCT >= 0.5"
+    },
+    {
+      "name": "ASIM_TTR_SIGNIFICATIVA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Existe al menos una posicion con ASIM_TTR_PCT >= 0.3"
+    },
+    {
+      "name": "ASIM_R_SIGNIFICATIVA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Existe al menos un devanado y posicion con ASIM_R_PCT >= 2.0"
+    },
+    {
+      "name": "TTR_MENOR_NOMINAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Existe al menos una fase donde TTR_med < TTR_nom (signo del defecto: el cortocircuito de espiras reduce la relacion)"
+    },
+    {
+      "name": "FASE_R_MINIMA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Existe fase con R20 estrictamente menor que las otras dos (consistente con cortocircuito de espiras: menos espiras activas = menos resistencia)"
+    },
+    {
+      "name": "FASE_R_MAXIMA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Existe fase con R20 estrictamente mayor que las otras dos (consistente con conexion floja: mayor resistencia de contacto)"
+    },
+    {
+      "name": "ASIM_R_SOLO_EN_UNA_POSICION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "La asimetria de resistencia se observa en una unica posicion del OLTC (las demas posiciones no muestran asimetria)"
+    },
+    {
+      "name": "R_DIEZ_VECES_NOMINAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Existe combinacion devanado-posicion-fase con R_med > 10 * R_nom (indicio de conductor abierto o fusible interno actuado)"
+    },
+    {
+      "name": "H_CORTO_ESPIRAS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: cortocircuito entre espiras del devanado. Inferido cuando coexisten FUERA_TOL_TTR, TTR_MENOR_NOMINAL, ASIM_R_SIGNIFICATIVA y FASE_R_MINIMA en la misma fase"
+    },
+    {
+      "name": "H_CONEXION_FLOJA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: conexion floja en bornes o terminal. Inferido cuando ASIM_R_SIGNIFICATIVA y FASE_R_MAXIMA pero TTR esta dentro de tolerancia"
+    },
+    {
+      "name": "H_OLTC_CONTACTO_FALLA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: falla de contacto del OLTC en una posicion especifica. Inferido cuando la asimetria se localiza en una sola posicion"
+    },
+    {
+      "name": "H_CONDUCTOR_ABIERTO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: conductor del devanado abierto (fusible interno actuado o rotura). Inferido cuando R_DIEZ_VECES_NOMINAL"
+    },
+    {
+      "name": "H_ERROR_CONEXION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: error de conexion (transformador conectado en una configuracion distinta a la de placa). Inferido cuando ERROR_ANGULO_TTR_GRADOS > 10"
+    },
+    {
+      "name": "A_ACEPTAR_SERVICIO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: aceptar el transformador en servicio. Solo si no hay TTR fuera de tolerancia, no hay asimetria de R y no hay hipotesis de falla activadas"
+    },
+    {
+      "name": "A_VERIFICAR_CONEXION_EXTERNA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: verificar conexion externa (bornes, terminales, cableado). Inferido cuando H_CONEXION_FLOJA"
+    },
+    {
+      "name": "A_INSPECCIONAR_OLTC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: inspeccionar OLTC. Inferido cuando H_OLTC_CONTACTO_FALLA"
+    },
+    {
+      "name": "A_SALIDA_DIAGNOSTICO_MAYOR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: sacar de servicio para diagnostico mayor. Inferido cuando H_CORTO_ESPIRAS o H_CONDUCTOR_ABIERTO"
+    },
+    {
+      "name": "A_RECHAZAR_RECEPCION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: rechazar recepcion del equipo (error de conexion en transformador nuevo). Inferido cuando H_ERROR_CONEXION"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "DELTA_TTR_PCT < 0.5 AND NOT FUERA_TOL_TTR"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "DentroTolTTR: TTR dentro de tolerancia cuando DELTA_TTR_PCT < 0.5%"
+    },
+    {
+      "constraints": [
+        "DELTA_TTR_PCT >= 0.5 AND FUERA_TOL_TTR"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "FueraTolTTR: TTR fuera de tolerancia cuando DELTA_TTR_PCT >= 0.5%"
+    },
+    {
+      "constraints": [
+        "ASIM_TTR_PCT >= 0.3 AND ASIM_TTR_SIGNIFICATIVA"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "AsimTTRSig: asimetria de TTR entre fases significativa (>= 0.3%)"
+    },
+    {
+      "constraints": [
+        "ASIM_R_PCT >= 2.0 AND ASIM_R_SIGNIFICATIVA"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "AsimRSig: asimetria de resistencia DC significativa (>= 2.0%)"
+    },
+    {
+      "constraints": [
+        "FUERA_TOL_TTR AND TTR_MENOR_NOMINAL AND ASIM_R_SIGNIFICATIVA AND FASE_R_MINIMA AND H_CORTO_ESPIRAS"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Regla abductiva: cortocircuito de espiras se infiere cuando TTR fuera de tolerancia, TTR menor a nominal, asimetria de R significativa y la fase con menor R coincide (signatura completa)"
+    },
+    {
+      "constraints": [
+        "NOT FUERA_TOL_TTR AND ASIM_R_SIGNIFICATIVA AND FASE_R_MAXIMA AND H_CONEXION_FLOJA"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Regla abductiva: conexion floja se infiere cuando TTR esta bien pero hay asimetria de R y la fase afectada tiene resistencia mayor (resistencia de contacto)"
+    },
+    {
+      "constraints": [
+        "FUERA_TOL_TTR AND ASIM_R_SIGNIFICATIVA AND ASIM_R_SOLO_EN_UNA_POSICION AND H_OLTC_CONTACTO_FALLA"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Regla abductiva: falla de contacto del OLTC se infiere cuando la asimetria se localiza en una unica posicion (las otras posiciones estan bien)"
+    },
+    {
+      "constraints": [
+        "R_DIEZ_VECES_NOMINAL AND H_CONDUCTOR_ABIERTO"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Regla abductiva: conductor abierto cuando la resistencia medida supera 10 veces la nominal"
+    },
+    {
+      "constraints": [
+        "ERROR_ANGULO_TTR_GRADOS > 10.0 AND H_ERROR_CONEXION"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Regla abductiva: error de conexion cuando el angulo de fase del TTR difiere mas de 10 grados respecto al nominal"
+    },
+    {
+      "constraints": [
+        "NOT FUERA_TOL_TTR AND NOT ASIM_R_SIGNIFICATIVA AND NOT H_CORTO_ESPIRAS AND NOT H_CONEXION_FLOJA AND NOT H_OLTC_CONTACTO_FALLA AND NOT H_CONDUCTOR_ABIERTO AND NOT H_ERROR_CONEXION AND A_ACEPTAR_SERVICIO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion aceptar servicio: cuando no se disparo ninguna hipotesis ni hay desviaciones significativas"
+    },
+    {
+      "constraints": [
+        "H_CONEXION_FLOJA AND A_VERIFICAR_CONEXION_EXTERNA"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion verificar conexion externa: deriva de la hipotesis de conexion floja"
+    },
+    {
+      "constraints": [
+        "H_OLTC_CONTACTO_FALLA AND A_INSPECCIONAR_OLTC"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion inspeccionar OLTC: deriva de la hipotesis de falla de contacto del OLTC"
+    },
+    {
+      "constraints": [
+        "(H_CORTO_ESPIRAS OR H_CONDUCTOR_ABIERTO) AND A_SALIDA_DIAGNOSTICO_MAYOR"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion sacar de servicio para diagnostico mayor: falla grave del bobinado"
+    },
+    {
+      "constraints": [
+        "H_ERROR_CONEXION AND A_RECHAZAR_RECEPCION"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion rechazar recepcion: error de conexion en transformador nuevo, no aceptar la entrega"
+    },
+    {
+      "constraints": [
+        "DELTA_TTR_PCT IN [0.0, 5.0] AND ASIM_TTR_PCT IN [0.0, 5.0] AND ASIM_R_PCT IN [0.0, 10.0] AND ERROR_ANGULO_TTR_GRADOS IN [0.0, 30.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para las variables numericas del ensayo"
+    }
+  ],
+  "functions": []
+}

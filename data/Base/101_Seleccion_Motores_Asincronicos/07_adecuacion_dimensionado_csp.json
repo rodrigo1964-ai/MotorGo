@@ -1,0 +1,177 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "capa_especificacion_adecuacion",
+    "norma": "IEC 60034-12 / NEMA MG-1 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Clasificadores de adecuacion del motor original a la carga real. Determinan tres juicios: (i) si la potencia nominal Pn cubre con margen 15 por ciento la potencia operativa maxima; (ii) si el tipo NEMA (B simple, C doble jaula) es adecuado al par de breakaway de la carga; (iii) si el metodo de arranque actual es compatible con la potencia, la robustez de red y la familia de carga. Estos clasificadores son condicionales para las reglas de seleccion del reemplazo del archivo 08",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte III, Secciones 7-8"
+  },
+  "variables": [
+    {
+      "name": "P_N_ORIG_KW",
+      "type": "numeric",
+      "domain": [0.5, 1000.0],
+      "value": [10.0, 50.0],
+      "section": "predicados_derivados",
+      "description": "Potencia nominal del motor original en kW"
+    },
+    {
+      "name": "P_OP_MAX_KW",
+      "type": "numeric",
+      "domain": [0.5, 1500.0],
+      "value": [10.0, 50.0],
+      "section": "predicados_derivados",
+      "description": "Potencia operativa maxima realmente requerida en kW (considerando cambios de produccion)"
+    },
+    {
+      "name": "TARR_L_REL_TN",
+      "type": "numeric",
+      "domain": [0.0, 4.0],
+      "value": [0.3, 0.6],
+      "section": "predicados_derivados",
+      "description": "Par de breakaway de la carga relativo al par nominal del motor (T_arr_L / T_n). < 0.5 = carga cuadratica suave, [0.5, 2.0] = par medio, > 2 = carga pesada (trituradora, molino)"
+    },
+    {
+      "name": "S_CC_REL_PN_ADEC",
+      "type": "numeric",
+      "domain": [1.0, 200.0],
+      "value": [25.0, 100.0],
+      "section": "predicados_derivados",
+      "description": "Potencia de cortocircuito en barra relativa a Pn (S_cc / P_n). Default >= 20 indica red robusta apta para DOL"
+    },
+    {
+      "name": "FAMTL_CUAD",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Familia matematica de la carga T_L(omega) es cuadratica (bomba centrifuga, ventilador)"
+    },
+    {
+      "name": "FAMTL_LINEAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Familia matematica de la carga T_L(omega) es lineal en velocidad"
+    },
+    {
+      "name": "TIPO_JAULA_SIMPLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Motor original tiene jaula simple (NEMA B): par de arranque ~ 1.5-2.0 * T_n, apto para cargas cuadraticas"
+    },
+    {
+      "name": "TIPO_JAULA_DOBLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Motor original tiene jaula doble (NEMA C): par de arranque ~ 2.0-2.5 * T_n, apto para cargas pesadas"
+    },
+    {
+      "name": "TARR_DOL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Metodo de arranque actual es DOL (directo a la red)"
+    },
+    {
+      "name": "TARR_Y_DELTA_ADEC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Metodo de arranque actual es estrella-triangulo (Y-Delta)"
+    },
+    {
+      "name": "TARR_SOFT_START",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Metodo de arranque actual es soft-start"
+    },
+    {
+      "name": "TARR_VFD",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Metodo de arranque actual es VFD (variador de frecuencia)"
+    },
+    {
+      "name": "ADEC_PN",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Dimensionado de potencia adecuado: P_n_orig * 1.15 >= P_op_max (margen de 15 por ciento sobre la potencia operativa maxima)"
+    },
+    {
+      "name": "ADEC_NEMA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Tipo NEMA de jaula adecuado a la carga: jaula simple para T_arr_L/T_n <= 1.2 o jaula doble para T_arr_L/T_n <= 2.0"
+    },
+    {
+      "name": "ADEC_TARR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Metodo de arranque adecuado al combo (potencia, red, familia de carga) segun la matriz del Apunte 5 Tabla 1"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "P_N_ORIG_KW * 1.15 >= P_OP_MAX_KW AND ADEC_PN"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "AdecPn (positivo, ec. 48): Pn original con margen 15 por ciento cubre la potencia operativa maxima"
+    },
+    {
+      "constraints": [
+        "P_N_ORIG_KW * 1.15 < P_OP_MAX_KW AND NOT ADEC_PN"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "AdecPn (negativo): margen insuficiente"
+    },
+    {
+      "constraints": [
+        "((TIPO_JAULA_SIMPLE AND TARR_L_REL_TN <= 1.2) OR (TIPO_JAULA_DOBLE AND TARR_L_REL_TN <= 2.0)) AND ADEC_NEMA"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "AdecNEMA (positivo, ec. 49): jaula simple cubre hasta 1.2 pu; jaula doble cubre hasta 2.0 pu"
+    },
+    {
+      "constraints": [
+        "((TIPO_JAULA_SIMPLE AND TARR_L_REL_TN > 1.2) OR (TIPO_JAULA_DOBLE AND TARR_L_REL_TN > 2.0)) AND NOT ADEC_NEMA"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "AdecNEMA (negativo): jaula subdimensionada para el par requerido"
+    },
+    {
+      "constraints": [
+        "((TARR_DOL AND P_N_ORIG_KW < 50.0 AND S_CC_REL_PN_ADEC > 20.0 AND (FAMTL_CUAD OR FAMTL_LINEAL)) OR (TARR_Y_DELTA_ADEC AND FAMTL_CUAD AND TARR_L_REL_TN < 0.5) OR TARR_SOFT_START OR TARR_VFD) AND ADEC_TARR"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "AdecTarr (positivo, ec. 50): DOL ok si P_n < 50 kW y red robusta y carga liviana; Y-Delta ok solo para cuadratica con par < 0.5; soft-start y VFD generalmente aptos"
+    },
+    {
+      "constraints": [
+        "P_N_ORIG_KW IN [0.5, 1000.0] AND P_OP_MAX_KW IN [0.5, 1500.0] AND TARR_L_REL_TN IN [0.0, 4.0] AND S_CC_REL_PN_ADEC IN [1.0, 200.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para variables numericas"
+    }
+  ],
+  "functions": []
+}

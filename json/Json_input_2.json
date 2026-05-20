@@ -1,0 +1,29 @@
+{
+  "description": "Calificacion de procedimiento de soldadura WPS simplificado",
+  "variables": [
+    { "name": "INSPECCION_OK",      "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "PRUEBA_TRACCION_OK", "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "PRUEBA_DOBLADO_OK",  "type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "PRECALENTAMIENTO_OK","type": "boolean", "domain": [true, false], "value": [true]  },
+    { "name": "PWHT_APLICADO",      "type": "boolean", "domain": [true, false], "value": [false] },
+    { "name": "PROCESO",    "type": "set",     "domain": ["SMAW","GMAW","FCAW","SAW"],           "value": ["SMAW"] },
+    { "name": "ELECTRODO",  "type": "set",     "domain": ["E6010","E7016","E7018","E8018"],       "value": ["E7018"] },
+    { "name": "POSICION",   "type": "set",     "domain": ["POS1G","POS2G","POS3G","POS4G"],      "value": ["POS1G","POS2G"] },
+    { "name": "PASES",   "type": "integer", "domain": [1,2,3,4,5,6,7,8],                        "value": [4,5,6] },
+    { "name": "AMPERAJE",   "type": "integer", "domain": [100,110,120,130,140,150,160,170,180], "value": [140,150,160] },
+    { "name": "VOLTAJE_V",  "type": "numeric", "domain": [18.0, 32.0],                          "value": [22.0, 25.0] }
+  ],
+  "expressions": [
+    { "constraints": ["INSPECCION_OK = true"] },
+    { "constraints": ["PRUEBA_TRACCION_OK = true AND PRUEBA_DOBLADO_OK = true"] },
+    { "constraints": ["PRECALENTAMIENTO_OK = true"] },
+    { "constraints": ["PWHT_APLICADO = false"] },
+    { "constraints": ["PROCESO IN {SMAW, GMAW}"] },
+    { "constraints": ["ELECTRODO IN {E7016, E7018, E8018}"] },
+    { "constraints": ["POSICION IN {POS1G, POS2G, POS3G, POS4G}"] },
+    { "constraints": ["PASES IN [3, 8]"] },
+    { "constraints": ["AMPERAJE IN [130, 170]"] },
+    { "constraints": ["VOLTAJE_V IN [20.0, 28.0]"] },
+    { "constraints": ["PASES >= 3 AND AMPERAJE >= 130"] }
+  ]
+}

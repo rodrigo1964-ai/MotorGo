@@ -1,0 +1,214 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "capa_accion_operativa",
+    "norma": "NEMA MG-1 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Reglas de accion operativa: define las cuatro acciones primarias (rebobinar, reemplazar, intervenir red, intervenir carga, intervenir arranque) y la regla critica de respaldo (no rebobinar sin intervenir la causa raiz externa). Predicado de exclusion C_externa que detecta cuando el motor es la victima del sistema y no la causa raiz del problema",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte III, Seccion 10"
+  },
+  "variables": [
+    {
+      "name": "H_SOBRECARGA_AC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "H_sobrecarga (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "H_1FASE_AC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "H_1fase (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "H_SOBRET_TRANS_AC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "H_sobret_trans (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "ROTOR_SANO_AC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "predicados_derivados",
+      "description": "Rotor sano por inspeccion (sin barras agrietadas, sin anillo fracturado, sin refusion). Habilitante para rebobinar"
+    },
+    {
+      "name": "N_REB_PREVIOS_AC",
+      "type": "numeric",
+      "domain": [0.0, 10.0],
+      "value": [0.0, 0.0],
+      "section": "predicados_derivados",
+      "description": "Numero de rebobinados previos sobre el mismo motor. > 1 bloquea rebobinar (vida util agotada del paquete magnetico)"
+    },
+    {
+      "name": "ADEC_PN_AC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Adec_Pn del motor original (entrada desde 07_adecuacion_dimensionado)"
+    },
+    {
+      "name": "ADEC_NEMA_AC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Adec_NEMA del motor original (entrada desde 07_adecuacion_dimensionado)"
+    },
+    {
+      "name": "HAY_C_RED",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Existencial: alguna causa raiz de red activa (C_red_subt OR C_red_pf OR C_red_cc_debil OR C_red_transit)"
+    },
+    {
+      "name": "HAY_C_CARGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Existencial: alguna causa raiz de carga activa (C_carga_sobrealim OR C_carga_atasco OR C_carga_NPSH)"
+    },
+    {
+      "name": "HAY_C_OP_O_ARR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Existencial: alguna causa raiz de operacion o metodo de arranque activa (C_op_ciclos_rotor OR C_op_humedad OR C_arr_Y_Delta_inad OR C_arr_VFD_mal)"
+    },
+    {
+      "name": "C_EXTERNA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Predicado de exclusion: el motor es victima de causa externa (red, carga, operacion o metodo de arranque). Si C_externa, rebobinar aislado esta prohibido"
+    },
+    {
+      "name": "A_REBOBINAR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: rebobinar el motor existente. Solo si la falla es del bobinado (no del rotor) Y el motor tiene <= 1 rebobinado previo Y dimensionado adecuado"
+    },
+    {
+      "name": "A_REEMPLAZAR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: reemplazar el motor por uno nuevo (no rebobinar). Obligatoria si rotor no sano, o ya hubo dos rebobinados, o dimensionado/NEMA inadecuados"
+    },
+    {
+      "name": "A_INTERVENIR_RED",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: intervenir la red de alimentacion (mejorar regulacion, instalar proteccion de asimetria, descargas, etc.)"
+    },
+    {
+      "name": "A_INTERVENIR_CARGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: intervenir la carga (reducir alimentacion, corregir control de freno/sensor, eliminar atasco, mejorar NPSH)"
+    },
+    {
+      "name": "A_INTERVENIR_ARRANQUE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: intervenir el esquema de arranque (cambiar Y-Delta por VFD, agregar filtros, etc.)"
+    },
+    {
+      "name": "A_REBOBINAR_AISLADO_PROHIBIDO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Bandera operativa: prohibido rebobinar y devolver al servicio sin intervenir la causa raiz externa. Regla critica del Apunte 4 paragrafo 10: nunca rebobinar sin intervenir"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "(HAY_C_RED OR HAY_C_CARGA OR HAY_C_OP_O_ARR) AND C_EXTERNA"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "C_EXTERNA (positivo, ec. 40): existe alguna causa raiz externa al motor"
+    },
+    {
+      "constraints": [
+        "NOT HAY_C_RED AND NOT HAY_C_CARGA AND NOT HAY_C_OP_O_ARR AND NOT C_EXTERNA"
+      ],
+      "_group": "predicados_derivados_disparo",
+      "description": "C_EXTERNA (negativo): no hay causa externa inferida"
+    },
+    {
+      "constraints": [
+        "(H_SOBRECARGA_AC OR H_1FASE_AC OR H_SOBRET_TRANS_AC) AND ROTOR_SANO_AC AND N_REB_PREVIOS_AC <= 1.0 AND ADEC_PN_AC AND ADEC_NEMA_AC AND A_REBOBINAR"
+      ],
+      "_group": "reglas_accion",
+      "description": "A_REBOBINAR <= falla del bobinado (sobrecarga/1fase/sobret) AND rotor sano AND <= 1 rebobinado AND dimensionado correcto (Apunte 5, ec. 64)"
+    },
+    {
+      "constraints": [
+        "(NOT ROTOR_SANO_AC OR N_REB_PREVIOS_AC >= 2.0 OR NOT ADEC_PN_AC OR NOT ADEC_NEMA_AC) AND A_REEMPLAZAR"
+      ],
+      "_group": "reglas_accion",
+      "description": "A_REEMPLAZAR <= rotor no sano OR >= 2 rebobinados OR Pn inadecuada OR NEMA inadecuado (Apunte 5, ec. 65)"
+    },
+    {
+      "constraints": [
+        "HAY_C_RED AND A_INTERVENIR_RED"
+      ],
+      "_group": "reglas_accion",
+      "description": "A_INTERVENIR_RED <= alguna causa raiz de red activa (Apunte 5, ec. 66)"
+    },
+    {
+      "constraints": [
+        "HAY_C_CARGA AND A_INTERVENIR_CARGA"
+      ],
+      "_group": "reglas_accion",
+      "description": "A_INTERVENIR_CARGA <= alguna causa raiz de carga activa (Apunte 5, ec. 67)"
+    },
+    {
+      "constraints": [
+        "HAY_C_OP_O_ARR AND A_INTERVENIR_ARRANQUE"
+      ],
+      "_group": "reglas_accion",
+      "description": "A_INTERVENIR_ARRANQUE <= alguna causa raiz de operacion o metodo de arranque activa (Apunte 5, ec. 68)"
+    },
+    {
+      "constraints": [
+        "C_EXTERNA AND A_REBOBINAR_AISLADO_PROHIBIDO"
+      ],
+      "_group": "reglas_accion_critica",
+      "description": "Regla 69 (la mas importante de la formalizacion): existe C_externa implica que rebobinar aisladamente esta PROHIBIDO. Debe acompanarse de la intervencion correspondiente"
+    },
+    {
+      "constraints": [
+        "N_REB_PREVIOS_AC IN [0.0, 10.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraint de dominio para numero de rebobinados"
+    }
+  ],
+  "functions": []
+}

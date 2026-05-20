@@ -1,0 +1,854 @@
+{
+		"variables": [
+			{
+				"name": "PROCESO_ESTABLE",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 0
+			},
+			{
+				"name": "DENTRO_SPEC",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 1
+			},
+			{
+				"name": "ALARMA_SPC",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					false
+				],
+				"id": 2
+			},
+			{
+				"name": "MAQUINA_CALIBRADA",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 3
+			},
+			{
+				"name": "TURNO_COMPLETO",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 4
+			},
+			{
+				"name": "CARACTERISTICA",
+				"type": "set",
+				"domain": [
+					"DIAMETRO",
+					"LONGITUD",
+					"ANGULO",
+					"RUGOSIDAD"
+				],
+				"value": [
+					"DIAMETRO",
+					"LONGITUD"
+				],
+				"id": 5
+			},
+			{
+				"name": "TURNO",
+				"type": "set",
+				"domain": [
+					"MANANA",
+					"TARDE",
+					"NOCHE"
+				],
+				"value": [
+					"TARDE"
+				],
+				"id": 6
+			},
+			{
+				"name": "DECISION",
+				"type": "set",
+				"domain": [
+					"ACEPTAR",
+					"RECHAZAR",
+					"REINSPECCIONAR",
+					"RETENER"
+				],
+				"value": [
+					"ACEPTAR"
+				],
+				"id": 7
+			},
+			{
+				"name": "SUBGRUPO",
+				"type": "integer",
+				"domain": [
+					2,
+					3,
+					4,
+					5,
+					6,
+					7,
+					8,
+					9,
+					10
+				],
+				"value": [
+					5,
+					6,
+					7
+				],
+				"id": 8
+			},
+			{
+				"name": "MUESTRAS_DIA",
+				"type": "integer",
+				"domain": [
+					10,
+					20,
+					30,
+					40,
+					50,
+					60
+				],
+				"value": [
+					20,
+					30,
+					40
+				],
+				"id": 9
+			},
+			{
+				"name": "MEDIA_MM",
+				"type": "numeric",
+				"domain": [
+					9.5,
+					10.5
+				],
+				"value": [
+					9.95,
+					10.05
+				],
+				"id": 10
+			}
+		],
+		"functions": [
+			{
+				"name": "rango_normalizado",
+				"inputs": [
+					{
+						"name": "valor",
+						"type": "numeric",
+						"domain": [
+							-1000000000,
+							1000000000
+						]
+					},
+					{
+						"name": "lo",
+						"type": "numeric",
+						"domain": [
+							-1000000000,
+							1000000000
+						]
+					},
+					{
+						"name": "hi",
+						"type": "numeric",
+						"domain": [
+							-1000000000,
+							1000000000
+						]
+					}
+				],
+				"outputs": [
+					{
+						"name": "r",
+						"type": "numeric",
+						"domain": [
+							0,
+							1
+						]
+					}
+				],
+				"id": 0
+			},
+			{
+				"name": "cpk",
+				"inputs": [
+					{
+						"name": "media",
+						"type": "numeric",
+						"domain": [
+							-1000000000,
+							1000000000
+						]
+					},
+					{
+						"name": "lse",
+						"type": "numeric",
+						"domain": [
+							-1000000000,
+							1000000000
+						]
+					},
+					{
+						"name": "lie",
+						"type": "numeric",
+						"domain": [
+							-1000000000,
+							1000000000
+						]
+					}
+				],
+				"outputs": [
+					{
+						"name": "indice",
+						"type": "numeric",
+						"domain": [
+							-5,
+							5
+						]
+					}
+				],
+				"id": 1
+			}
+		],
+		"constraints": [
+			{
+				"id": 0,
+				"expr": "PROCESO_ESTABLE = true AND DENTRO_SPEC = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PROCESO_ESTABLE"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "DENTRO_SPEC"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					0,
+					1
+				],
+				"func_refs": []
+			},
+			{
+				"id": 1,
+				"expr": "ALARMA_SPC = false",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ALARMA_SPC"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "FALSE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					2
+				],
+				"func_refs": []
+			},
+			{
+				"id": 2,
+				"expr": "MAQUINA_CALIBRADA = true AND TURNO_COMPLETO = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MAQUINA_CALIBRADA"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "TURNO_COMPLETO"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					3,
+					4
+				],
+				"func_refs": []
+			},
+			{
+				"id": 3,
+				"expr": "CARACTERISTICA IN {DIAMETRO, LONGITUD, ANGULO}",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CARACTERISTICA"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "DIAMETRO"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "LONGITUD"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "ANGULO"
+					},
+					{
+						"id": 4,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3
+						]
+					},
+					{
+						"id": 5,
+						"type": "In",
+						"left": 0,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					5
+				],
+				"func_refs": []
+			},
+			{
+				"id": 4,
+				"expr": "TURNO IN {MANANA, TARDE}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "TURNO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "MANANA"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "TARDE"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					6
+				],
+				"func_refs": []
+			},
+			{
+				"id": 5,
+				"expr": "DECISION IN {ACEPTAR, REINSPECCIONAR}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "DECISION"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "ACEPTAR"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "REINSPECCIONAR"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					7
+				],
+				"func_refs": []
+			},
+			{
+				"id": 6,
+				"expr": "SUBGRUPO IN [3, 10]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "SUBGRUPO"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 3
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 10
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 7,
+				"expr": "MUESTRAS_DIA IN [20, 60]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MUESTRAS_DIA"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 20
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 60
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					9
+				],
+				"func_refs": []
+			},
+			{
+				"id": 8,
+				"expr": "MEDIA_MM IN [9.8, 10.2]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MEDIA_MM"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 9.8
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 10.2
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 9,
+				"expr": "abs(MEDIA_MM - 10.0) <= 0.1",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MEDIA_MM"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 10
+					},
+					{
+						"id": 2,
+						"type": "Subtract",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "FunctionCall",
+						"name": "ABS",
+						"args": [
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 0.1
+					},
+					{
+						"id": 5,
+						"type": "LessEq",
+						"left": 3,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 10,
+				"expr": "rango_normalizado(MEDIA_MM, 9.5, 10.5) IN [0.4, 0.6]",
+				"root": 7,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MEDIA_MM"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 9.5
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 10.5
+					},
+					{
+						"id": 3,
+						"type": "FunctionCall",
+						"name": "RANGO_NORMALIZADO",
+						"args": [
+							0,
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 0.4
+					},
+					{
+						"id": 5,
+						"type": "Number",
+						"value": 0.6
+					},
+					{
+						"id": 6,
+						"type": "Interval",
+						"lo": 4,
+						"hi": 5,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 7,
+						"type": "In",
+						"left": 3,
+						"right": 6
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": [
+					0
+				]
+			},
+			{
+				"id": 11,
+				"expr": "cpk(MEDIA_MM, 10.3, 9.7) >= 1.33",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MEDIA_MM"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 10.3
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 9.7
+					},
+					{
+						"id": 3,
+						"type": "FunctionCall",
+						"name": "CPK",
+						"args": [
+							0,
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 1.33
+					},
+					{
+						"id": 5,
+						"type": "GreaterEq",
+						"left": 3,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": [
+					1
+				]
+			}
+		],
+		"adjacency": [
+			{
+				"var_id": 0,
+				"name": "PROCESO_ESTABLE",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 1,
+				"name": "DENTRO_SPEC",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 2,
+				"name": "ALARMA_SPC",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 3,
+				"name": "MAQUINA_CALIBRADA",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 4,
+				"name": "TURNO_COMPLETO",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 5,
+				"name": "CARACTERISTICA",
+				"constraint_ids": [
+					3
+				]
+			},
+			{
+				"var_id": 6,
+				"name": "TURNO",
+				"constraint_ids": [
+					4
+				]
+			},
+			{
+				"var_id": 7,
+				"name": "DECISION",
+				"constraint_ids": [
+					5
+				]
+			},
+			{
+				"var_id": 8,
+				"name": "SUBGRUPO",
+				"constraint_ids": [
+					6
+				]
+			},
+			{
+				"var_id": 9,
+				"name": "MUESTRAS_DIA",
+				"constraint_ids": [
+					7
+				]
+			},
+			{
+				"var_id": 10,
+				"name": "MEDIA_MM",
+				"constraint_ids": [
+					8,
+					9,
+					10,
+					11
+				]
+			}
+		]
+	}

@@ -1,0 +1,774 @@
+{
+		"variables": [
+			{
+				"name": "PIEZA_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 0
+			},
+			{
+				"name": "RUGOSIDAD_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 1
+			},
+			{
+				"name": "CALIBRE_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 2
+			},
+			{
+				"name": "SIMETRIA_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 3
+			},
+			{
+				"name": "CERTIFICADO_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					false
+				],
+				"id": 4
+			},
+			{
+				"name": "MATERIAL",
+				"type": "set",
+				"domain": [
+					"ACERO",
+					"ALUMINIO",
+					"TITANIO",
+					"BRONCE"
+				],
+				"value": [
+					"ACERO",
+					"ALUMINIO"
+				],
+				"id": 5
+			},
+			{
+				"name": "ACABADO",
+				"type": "set",
+				"domain": [
+					"N6",
+					"N7",
+					"N8",
+					"N9"
+				],
+				"value": [
+					"N7",
+					"N8"
+				],
+				"id": 6
+			},
+			{
+				"name": "PROCESO_MECANIZADO",
+				"type": "set",
+				"domain": [
+					"TORNEADO",
+					"RECTIFICADO",
+					"FRESADO"
+				],
+				"value": [
+					"RECTIFICADO"
+				],
+				"id": 7
+			},
+			{
+				"name": "MUESTRAS",
+				"type": "integer",
+				"domain": [
+					5,
+					10,
+					15,
+					20,
+					25,
+					30
+				],
+				"value": [
+					10,
+					15,
+					20
+				],
+				"id": 8
+			},
+			{
+				"name": "MEDICIONES",
+				"type": "integer",
+				"domain": [
+					3,
+					5,
+					7,
+					10
+				],
+				"value": [
+					5,
+					7
+				],
+				"id": 9
+			},
+			{
+				"name": "DIAMETRO_MM",
+				"type": "numeric",
+				"domain": [
+					40,
+					60
+				],
+				"value": [
+					49.8,
+					50.2
+				],
+				"id": 10
+			}
+		],
+		"functions": [
+			{
+				"name": "desviacion_relativa",
+				"inputs": [
+					{
+						"name": "valor",
+						"type": "numeric",
+						"domain": [
+							0,
+							1000000
+						]
+					},
+					{
+						"name": "nominal",
+						"type": "numeric",
+						"domain": [
+							0,
+							1000000
+						]
+					}
+				],
+				"outputs": [
+					{
+						"name": "pct",
+						"type": "numeric",
+						"domain": [
+							0,
+							100
+						]
+					}
+				],
+				"id": 0
+			}
+		],
+		"constraints": [
+			{
+				"id": 0,
+				"expr": "PIEZA_OK = true AND CALIBRE_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PIEZA_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "CALIBRE_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					0,
+					2
+				],
+				"func_refs": []
+			},
+			{
+				"id": 1,
+				"expr": "RUGOSIDAD_OK = true AND SIMETRIA_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "RUGOSIDAD_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "SIMETRIA_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					1,
+					3
+				],
+				"func_refs": []
+			},
+			{
+				"id": 2,
+				"expr": "CERTIFICADO_OK = false",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CERTIFICADO_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "FALSE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					4
+				],
+				"func_refs": []
+			},
+			{
+				"id": 3,
+				"expr": "MATERIAL IN {ACERO, ALUMINIO, TITANIO}",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MATERIAL"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "ACERO"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "ALUMINIO"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "TITANIO"
+					},
+					{
+						"id": 4,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3
+						]
+					},
+					{
+						"id": 5,
+						"type": "In",
+						"left": 0,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					5
+				],
+				"func_refs": []
+			},
+			{
+				"id": 4,
+				"expr": "ACABADO IN {N6, N7, N8}",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ACABADO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "N6"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "N7"
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "N8"
+					},
+					{
+						"id": 4,
+						"type": "Set",
+						"elements": [
+							1,
+							2,
+							3
+						]
+					},
+					{
+						"id": 5,
+						"type": "In",
+						"left": 0,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					6
+				],
+				"func_refs": []
+			},
+			{
+				"id": 5,
+				"expr": "PROCESO_MECANIZADO IN {TORNEADO, RECTIFICADO}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PROCESO_MECANIZADO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TORNEADO"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "RECTIFICADO"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					7
+				],
+				"func_refs": []
+			},
+			{
+				"id": 6,
+				"expr": "MUESTRAS IN [5, 30]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MUESTRAS"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 5
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 30
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 7,
+				"expr": "MEDICIONES IN [3, 10]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MEDICIONES"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 3
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 10
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					9
+				],
+				"func_refs": []
+			},
+			{
+				"id": 8,
+				"expr": "DIAMETRO_MM IN [49.0, 51.0]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "DIAMETRO_MM"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 49
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 51
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 9,
+				"expr": "abs(DIAMETRO_MM - 50.0) <= 0.5",
+				"root": 5,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "DIAMETRO_MM"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 50
+					},
+					{
+						"id": 2,
+						"type": "Subtract",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "FunctionCall",
+						"name": "ABS",
+						"args": [
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 0.5
+					},
+					{
+						"id": 5,
+						"type": "LessEq",
+						"left": 3,
+						"right": 4
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 10,
+				"expr": "sqrt(MUESTRAS) >= 3.0",
+				"root": 3,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "MUESTRAS"
+					},
+					{
+						"id": 1,
+						"type": "FunctionCall",
+						"name": "SQRT",
+						"args": [
+							0
+						]
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 3
+					},
+					{
+						"id": 3,
+						"type": "GreaterEq",
+						"left": 1,
+						"right": 2
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 11,
+				"expr": "desviacion_relativa(DIAMETRO_MM, 50.0) <= 1.0",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "DIAMETRO_MM"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 50
+					},
+					{
+						"id": 2,
+						"type": "FunctionCall",
+						"name": "DESVIACION_RELATIVA",
+						"args": [
+							0,
+							1
+						]
+					},
+					{
+						"id": 3,
+						"type": "Number",
+						"value": 1
+					},
+					{
+						"id": 4,
+						"type": "LessEq",
+						"left": 2,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": [
+					0
+				]
+			}
+		],
+		"adjacency": [
+			{
+				"var_id": 0,
+				"name": "PIEZA_OK",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 1,
+				"name": "RUGOSIDAD_OK",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 2,
+				"name": "CALIBRE_OK",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 3,
+				"name": "SIMETRIA_OK",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 4,
+				"name": "CERTIFICADO_OK",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 5,
+				"name": "MATERIAL",
+				"constraint_ids": [
+					3
+				]
+			},
+			{
+				"var_id": 6,
+				"name": "ACABADO",
+				"constraint_ids": [
+					4
+				]
+			},
+			{
+				"var_id": 7,
+				"name": "PROCESO_MECANIZADO",
+				"constraint_ids": [
+					5
+				]
+			},
+			{
+				"var_id": 8,
+				"name": "MUESTRAS",
+				"constraint_ids": [
+					6,
+					10
+				]
+			},
+			{
+				"var_id": 9,
+				"name": "MEDICIONES",
+				"constraint_ids": [
+					7
+				]
+			},
+			{
+				"var_id": 10,
+				"name": "DIAMETRO_MM",
+				"constraint_ids": [
+					8,
+					9,
+					11
+				]
+			}
+		]
+	}

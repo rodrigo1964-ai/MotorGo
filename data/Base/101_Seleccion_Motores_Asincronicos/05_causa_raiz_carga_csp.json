@@ -1,0 +1,124 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "capa_localizacion_causa_carga",
+    "norma": "IEC 60034-1 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Capa de localizacion: causa raiz del lado de la carga mecanica. Cubre tres causas: sobrealimentacion (cambio de regimen de produccion que excede el dimensionado original), atasco (locked rotor por obstaculo mecanico), problemas hidraulicos en bomba centrifuga (NPSH insuficiente que castiga rodamiento DE)",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte II, Seccion 6.2"
+  },
+  "variables": [
+    {
+      "name": "H_SOBRECARGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Hipotesis de sobrecarga termica del estator (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "H_LOCKED_ROTOR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Hipotesis de rotor bloqueado (entrada desde 02_signatura_rotor)"
+    },
+    {
+      "name": "H_ROD_LUB",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Hipotesis de falla de rodamiento por lubricacion / carga mecanica (entrada desde 03_signatura_rodamientos)"
+    },
+    {
+      "name": "BETA_CAMBIO_PROD",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Hubo cambio reciente de regimen de produccion antes de la falla: cinta cargada con mas material/h, bomba operando contra carga distinta, mezclador con producto mas viscoso"
+    },
+    {
+      "name": "APL_CINTA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion es cinta transportadora (cargada o vacia, distincion irrelevante a este nivel)"
+    },
+    {
+      "name": "APL_BOMBA_CENTRIFUGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion es bomba centrifuga (carga cuadratica suave en general; vulnerable a NPSH insuficiente)"
+    },
+    {
+      "name": "APL_BOMBA_OTRO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion es bomba no centrifuga (reciprocante, peristaltica, dosificadora) o aplicacion vulnerable a sobrealimentacion: mezclador, ventilador con cambio de paletas"
+    },
+    {
+      "name": "ROD_DE_DANADO_EXCL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Rodamiento DE (lado acoplamiento) NO sano Y rodamiento NDE sano: dano localizado en el lado de la carga, signatura de NPSH insuficiente en bomba centrifuga"
+    },
+    {
+      "name": "C_CARGA_SOBREALIM",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "causas_raiz",
+      "description": "Causa raiz: sobrealimentacion mecanica por cambio de regimen de produccion (el dimensionado original quedo corto)"
+    },
+    {
+      "name": "C_CARGA_ATASCO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "causas_raiz",
+      "description": "Causa raiz: atasco mecanico (objeto extrano, cinta trabada, eje doblado)"
+    },
+    {
+      "name": "C_CARGA_NPSH",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "causas_raiz",
+      "description": "Causa raiz: NPSH insuficiente en bomba centrifuga (cavitacion que castiga el rodamiento DE por carga axial alternante)"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "H_SOBRECARGA AND BETA_CAMBIO_PROD AND (APL_CINTA OR APL_BOMBA_CENTRIFUGA OR APL_BOMBA_OTRO) AND C_CARGA_SOBREALIM"
+      ],
+      "_group": "reglas_causa_raiz",
+      "description": "C_CARGA_SOBREALIM <= H_SOBRECARGA AND cambio de produccion AND aplicacion sensible a sobrealimentacion (cinta, bomba, mezclador) (Apunte 4, ec. 31)"
+    },
+    {
+      "constraints": [
+        "H_LOCKED_ROTOR AND C_CARGA_ATASCO"
+      ],
+      "_group": "reglas_causa_raiz",
+      "description": "C_CARGA_ATASCO <= H_LOCKED_ROTOR (Apunte 4, ec. 32)"
+    },
+    {
+      "constraints": [
+        "H_ROD_LUB AND APL_BOMBA_CENTRIFUGA AND ROD_DE_DANADO_EXCL AND C_CARGA_NPSH"
+      ],
+      "_group": "reglas_causa_raiz",
+      "description": "C_CARGA_NPSH <= H_ROD_LUB AND bomba centrifuga AND dano de rodamiento DE exclusivo (Apunte 4, ec. 33: NPSH insuficiente provoca cavitacion y castiga al rodamiento del lado acoplado a la bomba)"
+    }
+  ],
+  "functions": []
+}

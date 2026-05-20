@@ -1,0 +1,588 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "dga_cromatografia_gases_disueltos",
+    "norma": "IEEE C57.104 / IEC 60599 / Duval Triangle 1",
+    "descripcion": "Analisis cromatografico de gases disueltos en el aceite (DGA): metodo IEEE de cuatro condiciones, cocientes de Rogers, cocientes de Doernenburg, triangulo de Duval y cociente CO2/CO. Diagnostico de descargas parciales, arco, fallas termicas y degradacion del papel",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte II, Seccion 8"
+  },
+  "variables": [
+    {
+      "name": "H2_PPM",
+      "type": "numeric",
+      "domain": [0.0, 5000.0],
+      "value": [0.0, 100.0],
+      "section": "concentraciones",
+      "description": "Concentracion de hidrogeno en ppm"
+    },
+    {
+      "name": "CH4_PPM",
+      "type": "numeric",
+      "domain": [0.0, 5000.0],
+      "value": [0.0, 120.0],
+      "section": "concentraciones",
+      "description": "Concentracion de metano en ppm"
+    },
+    {
+      "name": "C2H6_PPM",
+      "type": "numeric",
+      "domain": [0.0, 5000.0],
+      "value": [0.0, 65.0],
+      "section": "concentraciones",
+      "description": "Concentracion de etano en ppm"
+    },
+    {
+      "name": "C2H4_PPM",
+      "type": "numeric",
+      "domain": [0.0, 5000.0],
+      "value": [0.0, 50.0],
+      "section": "concentraciones",
+      "description": "Concentracion de etileno en ppm"
+    },
+    {
+      "name": "C2H2_PPM",
+      "type": "numeric",
+      "domain": [0.0, 5000.0],
+      "value": [0.0, 1.0],
+      "section": "concentraciones",
+      "description": "Concentracion de acetileno en ppm (indicador de arco electrico)"
+    },
+    {
+      "name": "CO_PPM",
+      "type": "numeric",
+      "domain": [0.0, 10000.0],
+      "value": [0.0, 350.0],
+      "section": "concentraciones",
+      "description": "Concentracion de monoxido de carbono en ppm (indicador de degradacion termica del papel)"
+    },
+    {
+      "name": "CO2_PPM",
+      "type": "numeric",
+      "domain": [0.0, 30000.0],
+      "value": [0.0, 5000.0],
+      "section": "concentraciones",
+      "description": "Concentracion de dioxido de carbono en ppm"
+    },
+    {
+      "name": "TDCG_PPM",
+      "type": "numeric",
+      "domain": [0.0, 30000.0],
+      "value": [0.0, 720.0],
+      "section": "predicados_derivados",
+      "description": "Total Dissolved Combustible Gases (suma de H2, CH4, C2H6, C2H4, C2H2, CO)"
+    },
+    {
+      "name": "TASA_C2H2_PPM_MES",
+      "type": "numeric",
+      "domain": [-50.0, 200.0],
+      "value": [0.0, 5.0],
+      "section": "predicados_derivados",
+      "description": "Tasa temporal de C2H2 por regresion lineal (ppm/mes)"
+    },
+    {
+      "name": "TASA_CO_PPM_MES",
+      "type": "numeric",
+      "domain": [-50.0, 200.0],
+      "value": [0.0, 30.0],
+      "section": "predicados_derivados",
+      "description": "Tasa temporal de CO por regresion lineal (ppm/mes)"
+    },
+    {
+      "name": "RHO_1",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [0.1, 1.0],
+      "section": "cocientes_rogers",
+      "description": "Cociente de Rogers rho_1 = CH4/H2"
+    },
+    {
+      "name": "RHO_2",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [0.0, 0.1],
+      "section": "cocientes_rogers",
+      "description": "Cociente de Rogers rho_2 = C2H2/C2H4"
+    },
+    {
+      "name": "RHO_5",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [0.0, 1.0],
+      "section": "cocientes_rogers",
+      "description": "Cociente de Rogers rho_5 = C2H4/C2H6"
+    },
+    {
+      "name": "D1",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [0.1, 1.0],
+      "section": "cocientes_doernenburg",
+      "description": "Cociente de Doernenburg D1 = CH4/H2"
+    },
+    {
+      "name": "D2",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [0.0, 0.75],
+      "section": "cocientes_doernenburg",
+      "description": "Cociente de Doernenburg D2 = C2H2/C2H4"
+    },
+    {
+      "name": "PI_CH4",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [0.0, 100.0],
+      "section": "duval",
+      "description": "Coordenada del triangulo de Duval para CH4: porcentaje sobre suma Duval"
+    },
+    {
+      "name": "PI_C2H4",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [0.0, 100.0],
+      "section": "duval",
+      "description": "Coordenada del triangulo de Duval para C2H4: porcentaje sobre suma Duval"
+    },
+    {
+      "name": "PI_C2H2",
+      "type": "numeric",
+      "domain": [0.0, 100.0],
+      "value": [0.0, 100.0],
+      "section": "duval",
+      "description": "Coordenada del triangulo de Duval para C2H2: porcentaje sobre suma Duval"
+    },
+    {
+      "name": "R_CO",
+      "type": "numeric",
+      "domain": [0.5, 50.0],
+      "value": [10.0, 50.0],
+      "section": "predicados_derivados",
+      "description": "Cociente CO2/CO: indicador de degradacion del papel"
+    },
+    {
+      "name": "IEEE_CONDICION_1",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "clasificadores_ieee",
+      "description": "IEEE C57.104 Condicion 1 (normal): todas las concentraciones bajo umbrales y TDCG <= 720"
+    },
+    {
+      "name": "IEEE_CONDICION_4",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores_ieee",
+      "description": "IEEE C57.104 Condicion 4 (critica): alguna concentracion supera umbral severo o TDCG > 4630"
+    },
+    {
+      "name": "ROGERS_VALIDO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "validez",
+      "description": "Guarda de validez de Rogers: las cinco concentraciones clave por encima de umbrales minimos"
+    },
+    {
+      "name": "DOER_VALIDO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "validez",
+      "description": "Guarda de validez de Doernenburg: cinco concentraciones por encima de umbrales L1"
+    },
+    {
+      "name": "DUVAL_ZONA_PD",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "duval",
+      "description": "Zona Duval: descargas parciales (PD)"
+    },
+    {
+      "name": "DUVAL_ZONA_D1",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "duval",
+      "description": "Zona Duval: descarga de baja energia (D1)"
+    },
+    {
+      "name": "DUVAL_ZONA_D2",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "duval",
+      "description": "Zona Duval: descarga de alta energia / arco (D2)"
+    },
+    {
+      "name": "DUVAL_ZONA_T1",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "duval",
+      "description": "Zona Duval: falla termica de baja temperatura (T < 300C)"
+    },
+    {
+      "name": "DUVAL_ZONA_T2",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "duval",
+      "description": "Zona Duval: falla termica media (300-700C)"
+    },
+    {
+      "name": "DUVAL_ZONA_T3",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "duval",
+      "description": "Zona Duval: falla termica alta (T > 700C)"
+    },
+    {
+      "name": "DUVAL_ZONA_DT",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "duval",
+      "description": "Zona Duval: mezcla de descarga y termica (DT)"
+    },
+    {
+      "name": "PAPEL_DEGRAD_NORMAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "co2_co",
+      "description": "Degradacion del papel normal: R_CO > 10"
+    },
+    {
+      "name": "PAPEL_ATAQUE_ACTIVO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "co2_co",
+      "description": "Ataque activo al papel: R_CO < 3 (CO crece desproporcionadamente)"
+    },
+    {
+      "name": "PAPEL_INDETERMINADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "co2_co",
+      "description": "Degradacion del papel indeterminada: R_CO en [3, 10]"
+    },
+    {
+      "name": "H_DGA_DESCARGAS_PARCIALES",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: descargas parciales. Inferido por zona Duval PD o Rogers(1) o Doernenburg corona, con H2 > 100"
+    },
+    {
+      "name": "H_DGA_ARCO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: arco electrico. Inferido por zona Duval D2 o Doernenburg arco, con C2H2 > 5"
+    },
+    {
+      "name": "H_DGA_TERMICA_BAJA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: falla termica de baja temperatura. Inferido por Duval T1 o Rogers(3)"
+    },
+    {
+      "name": "H_DGA_TERMICA_ALTA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: falla termica de alta temperatura. Inferido por Duval T3"
+    },
+    {
+      "name": "H_DGA_PAPEL_DEG_ACTIVA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: degradacion activa del papel. Inferido cuando PAPEL_ATAQUE_ACTIVO y (CO > 350 o tasa CO > 30 ppm/mes)"
+    },
+    {
+      "name": "H_DGA_TERMICA_CON_PAPEL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "hipotesis_abductivas",
+      "description": "Hipotesis abductiva: falla termica afectando al papel. Convergencia termica + papel atacado"
+    },
+    {
+      "name": "INCONSISTENCIA_DGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "consistencia",
+      "description": "Inconsistencia entre metodos DGA: dos o mas metodos (IEEE, Rogers, Doernenburg, Duval) entregan conclusiones distintas"
+    },
+    {
+      "name": "A_MONITOREO_DGA_NORMAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "acciones",
+      "description": "Accion: monitoreo DGA normal. Inferido cuando IEEE Condicion 1 y sin hipotesis activas"
+    },
+    {
+      "name": "A_MONITOREO_DGA_INTENSIFICADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: monitoreo DGA intensificado (3 a 6 meses). Inferido por IEEE Condicion 2 o termica baja sin acetileno"
+    },
+    {
+      "name": "A_DIAGNOSTICO_COMPLEMENTARIO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: diagnostico complementario (FRA, TI, furanos). Inferido por DGA con descargas parciales o IEEE Condicion 3"
+    },
+    {
+      "name": "A_SALIDA_INSPECCION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: salida para inspeccion. Inferido por arco o IEEE Condicion 4 o C2H2 > 35 con tasa creciente"
+    },
+    {
+      "name": "A_CONSIDERAR_REEMPLAZO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: considerar reemplazo. Inferido cuando degradacion activa de papel + furano elevado + edad > 25 anos"
+    },
+    {
+      "name": "A_REPORTAR_INCONSISTENCIA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: reportar inconsistencia entre metodos DGA y revisar muestreo"
+    },
+    {
+      "name": "F2FAL_PRESENTE_GT_5",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "soporte_reemplazo",
+      "description": "Soporte para A_CONSIDERAR_REEMPLAZO: F2FAL > 5 ppm (ver dominio furanos)"
+    },
+    {
+      "name": "EDAD_CAL_GT_25",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "soporte_reemplazo",
+      "description": "Soporte para A_CONSIDERAR_REEMPLAZO: edad calendario > 25 anos"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "H2_PPM <= 100.0 AND CH4_PPM <= 120.0 AND C2H6_PPM <= 65.0 AND C2H4_PPM <= 50.0 AND C2H2_PPM <= 1.0 AND CO_PPM <= 350.0 AND TDCG_PPM <= 720.0 AND IEEE_CONDICION_1"
+      ],
+      "_group": "clasificadores_ieee",
+      "description": "IEEE C57.104 Condicion 1: todas las concentraciones por debajo de umbrales y TDCG bajo"
+    },
+    {
+      "constraints": [
+        "(H2_PPM > 1800.0 OR CH4_PPM > 1000.0 OR C2H6_PPM > 150.0 OR C2H4_PPM > 200.0 OR C2H2_PPM > 35.0 OR CO_PPM > 1400.0 OR TDCG_PPM > 4630.0) AND IEEE_CONDICION_4"
+      ],
+      "_group": "clasificadores_ieee",
+      "description": "IEEE C57.104 Condicion 4: al menos una concentracion en nivel severo"
+    },
+    {
+      "constraints": [
+        "H2_PPM > 0.0 AND C2H4_PPM > 1.0 AND C2H6_PPM > 1.0 AND CH4_PPM > 5.0 AND ROGERS_VALIDO"
+      ],
+      "_group": "validez_rogers",
+      "description": "Rogers valido: concentraciones minimas para que los cocientes tengan sentido"
+    },
+    {
+      "constraints": [
+        "H2_PPM > 200.0 AND CH4_PPM > 100.0 AND C2H2_PPM > 2.0 AND C2H4_PPM > 100.0 AND C2H6_PPM > 130.0 AND DOER_VALIDO"
+      ],
+      "_group": "validez_doernenburg",
+      "description": "Doernenburg valido: concentraciones por encima de niveles L1"
+    },
+    {
+      "constraints": [
+        "PI_CH4 >= 98.0 AND DUVAL_ZONA_PD"
+      ],
+      "_group": "duval_zonas",
+      "description": "Zona Duval PD: descargas parciales"
+    },
+    {
+      "constraints": [
+        "PI_C2H2 >= 13.0 AND PI_C2H4 < 23.0 AND DUVAL_ZONA_D1"
+      ],
+      "_group": "duval_zonas",
+      "description": "Zona Duval D1: descarga de baja energia"
+    },
+    {
+      "constraints": [
+        "PI_C2H2 >= 13.0 AND PI_C2H4 >= 23.0 AND PI_C2H4 < 40.0 AND DUVAL_ZONA_D2"
+      ],
+      "_group": "duval_zonas",
+      "description": "Zona Duval D2: descarga de alta energia (arco)"
+    },
+    {
+      "constraints": [
+        "PI_C2H2 < 4.0 AND PI_C2H4 < 20.0 AND NOT DUVAL_ZONA_PD AND DUVAL_ZONA_T1"
+      ],
+      "_group": "duval_zonas",
+      "description": "Zona Duval T1: falla termica baja"
+    },
+    {
+      "constraints": [
+        "PI_C2H2 < 4.0 AND PI_C2H4 >= 20.0 AND PI_C2H4 < 50.0 AND DUVAL_ZONA_T2"
+      ],
+      "_group": "duval_zonas",
+      "description": "Zona Duval T2: falla termica media"
+    },
+    {
+      "constraints": [
+        "PI_C2H4 >= 50.0 AND PI_C2H2 < 15.0 AND DUVAL_ZONA_T3"
+      ],
+      "_group": "duval_zonas",
+      "description": "Zona Duval T3: falla termica alta"
+    },
+    {
+      "constraints": [
+        "NOT DUVAL_ZONA_PD AND NOT DUVAL_ZONA_D1 AND NOT DUVAL_ZONA_D2 AND NOT DUVAL_ZONA_T1 AND NOT DUVAL_ZONA_T2 AND NOT DUVAL_ZONA_T3 AND DUVAL_ZONA_DT"
+      ],
+      "_group": "duval_zonas",
+      "description": "Zona Duval DT: descarga + termica (categoria residual)"
+    },
+    {
+      "constraints": [
+        "R_CO > 10.0 AND PAPEL_DEGRAD_NORMAL"
+      ],
+      "_group": "co2_co",
+      "description": "Degradacion del papel normal: cociente CO2/CO > 10"
+    },
+    {
+      "constraints": [
+        "R_CO < 3.0 AND PAPEL_ATAQUE_ACTIVO"
+      ],
+      "_group": "co2_co",
+      "description": "Ataque activo al papel: cociente CO2/CO < 3"
+    },
+    {
+      "constraints": [
+        "R_CO >= 3.0 AND R_CO <= 10.0 AND PAPEL_INDETERMINADO"
+      ],
+      "_group": "co2_co",
+      "description": "Degradacion del papel indeterminada"
+    },
+    {
+      "constraints": [
+        "(DUVAL_ZONA_PD OR (ROGERS_VALIDO AND RHO_2 < 0.1 AND RHO_1 < 0.1 AND RHO_5 < 1.0)) AND H2_PPM > 100.0 AND H_DGA_DESCARGAS_PARCIALES"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Hipotesis descargas parciales: Duval PD o Rogers fila 1, con H2 > 100"
+    },
+    {
+      "constraints": [
+        "(DUVAL_ZONA_D2 OR (DOER_VALIDO AND D2 > 0.75)) AND C2H2_PPM > 5.0 AND H_DGA_ARCO"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Hipotesis arco: Duval D2 o Doernenburg arco, con C2H2 > 5"
+    },
+    {
+      "constraints": [
+        "DUVAL_ZONA_T1 AND H_DGA_TERMICA_BAJA"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Hipotesis termica baja: Duval T1"
+    },
+    {
+      "constraints": [
+        "DUVAL_ZONA_T3 AND H_DGA_TERMICA_ALTA"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Hipotesis termica alta: Duval T3"
+    },
+    {
+      "constraints": [
+        "PAPEL_ATAQUE_ACTIVO AND (CO_PPM > 350.0 OR TASA_CO_PPM_MES > 30.0) AND H_DGA_PAPEL_DEG_ACTIVA"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Hipotesis degradacion activa del papel: ataque activo + CO alto o creciendo rapido"
+    },
+    {
+      "constraints": [
+        "(H_DGA_TERMICA_BAJA OR H_DGA_TERMICA_ALTA) AND PAPEL_ATAQUE_ACTIVO AND H_DGA_TERMICA_CON_PAPEL"
+      ],
+      "_group": "reglas_abductivas",
+      "description": "Hipotesis termica con papel: convergencia termica + ataque activo"
+    },
+    {
+      "constraints": [
+        "IEEE_CONDICION_1 AND NOT H_DGA_DESCARGAS_PARCIALES AND NOT H_DGA_ARCO AND NOT H_DGA_TERMICA_BAJA AND NOT H_DGA_TERMICA_ALTA AND NOT H_DGA_PAPEL_DEG_ACTIVA AND A_MONITOREO_DGA_NORMAL"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion monitoreo normal: IEEE C1 y sin hipotesis disparadas"
+    },
+    {
+      "constraints": [
+        "(H_DGA_TERMICA_BAJA AND C2H2_PPM < 1.0) AND A_MONITOREO_DGA_INTENSIFICADO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion monitoreo intensificado: termica baja sin acetileno"
+    },
+    {
+      "constraints": [
+        "H_DGA_DESCARGAS_PARCIALES AND NOT A_SALIDA_INSPECCION AND A_DIAGNOSTICO_COMPLEMENTARIO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion diagnostico complementario: PD descartando salida"
+    },
+    {
+      "constraints": [
+        "(H_DGA_ARCO OR IEEE_CONDICION_4 OR (C2H2_PPM > 35.0 AND TASA_C2H2_PPM_MES > 5.0)) AND A_SALIDA_INSPECCION"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion salida para inspeccion: arco, IEEE C4 o C2H2 alto y creciente"
+    },
+    {
+      "constraints": [
+        "H_DGA_PAPEL_DEG_ACTIVA AND F2FAL_PRESENTE_GT_5 AND EDAD_CAL_GT_25 AND A_CONSIDERAR_REEMPLAZO"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion considerar reemplazo: papel en degradacion activa + furano elevado + transformador viejo"
+    },
+    {
+      "constraints": [
+        "INCONSISTENCIA_DGA AND A_REPORTAR_INCONSISTENCIA"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion reportar inconsistencia: revisar muestreo y reanalizar"
+    },
+    {
+      "constraints": [
+        "H2_PPM IN [0.0, 5000.0] AND CH4_PPM IN [0.0, 5000.0] AND C2H6_PPM IN [0.0, 5000.0] AND C2H4_PPM IN [0.0, 5000.0] AND C2H2_PPM IN [0.0, 5000.0] AND CO_PPM IN [0.0, 10000.0] AND CO2_PPM IN [0.0, 30000.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para concentraciones"
+    }
+  ],
+  "functions": []
+}

@@ -1,0 +1,333 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "integracion_global_estado",
+    "norma": "Integracion CIGRE WG A2.49 / IEEE C57.143",
+    "descripcion": "Capa integradora que combina los resultados de los diez ensayos diagnosticos para definir el estado global del transformador, la convergencia entre ensayos independientes (mayor confianza diagnostica), y la prioridad de accion sobre el conjunto",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte IV, Seccion 12"
+  },
+  "variables": [
+    {
+      "name": "ACEITE_EN_BUEN_ESTADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "estado_subsistemas",
+      "description": "Estado del aceite bueno (proviene del ensayo TI)"
+    },
+    {
+      "name": "ACEITE_MARGINAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Estado del aceite marginal (proviene del ensayo TI)"
+    },
+    {
+      "name": "PAPEL_SANO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "estado_subsistemas",
+      "description": "Papel sano (proviene de furanos)"
+    },
+    {
+      "name": "PAPEL_ENVEJ_AVANZADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Papel en envejecimiento avanzado"
+    },
+    {
+      "name": "PAPEL_FIN_VIDA_O_CERCA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Papel cerca o en fin de vida"
+    },
+    {
+      "name": "FIN_VIDA_TERMICA_PRESENTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Fin de vida termica alcanzado (proviene de termico)"
+    },
+    {
+      "name": "DGA_HIPOTESIS_ACTIVA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Existe al menos una hipotesis DGA activa (PD, arco, termica baja, termica alta, papel)"
+    },
+    {
+      "name": "DGA_TERMICA_ALTA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Hipotesis DGA termica alta activa"
+    },
+    {
+      "name": "DGA_ARCO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Hipotesis DGA arco activa"
+    },
+    {
+      "name": "DGA_PAPEL_DEG_ACTIVA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Hipotesis DGA degradacion activa del papel"
+    },
+    {
+      "name": "DGA_GASES_METANO_PRESENTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Gases tipicos de degradacion metanol/metanado presentes en DGA"
+    },
+    {
+      "name": "BANDA_HF_ANOMALA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "FRA: banda HF anomala (proviene de FRA)"
+    },
+    {
+      "name": "CORTO_ESPIRAS_INFERIDO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Cortocircuito de espiras inferido (proviene de TTR/R)"
+    },
+    {
+      "name": "CONDUCTOR_ABIERTO_INFERIDO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Conductor abierto inferido (proviene de TTR/R)"
+    },
+    {
+      "name": "CONEXION_FLOJA_INFERIDA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "Conexion floja inferida (proviene de TTR/R)"
+    },
+    {
+      "name": "DP_MIN_MENOR_200",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estado_subsistemas",
+      "description": "DP minimo <= 200 (proviene de furanos)"
+    },
+    {
+      "name": "DP_CONVERGENTE_TERMICO_QUIMICO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "estado_subsistemas",
+      "description": "Estimaciones de DP termico y quimico convergen (|delta| < 100)"
+    },
+    {
+      "name": "EST_GLOB_INTEGRIDAD_COMPLETA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "estados_globales",
+      "description": "Estado global: integridad completa del activo. Aceite bueno, papel sano, sin hipotesis DGA, sin falla de bobinado o conexion"
+    },
+    {
+      "name": "EST_GLOB_SANO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "estados_globales",
+      "description": "Estado global sano: aceite bueno, papel sano, sin hipotesis DGA (no exige ausencia de hallazgos electricos menores)"
+    },
+    {
+      "name": "EST_GLOB_ENVEJ_CONCORDANTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estados_globales",
+      "description": "Envejecimiento concordante: aceite marginal + papel avanzado pero sin degradacion activa (envejecimiento natural sin falla activa)"
+    },
+    {
+      "name": "EST_GLOB_FALLA_ACTIVA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estados_globales",
+      "description": "Estado global con falla activa: DGA termica alta o arco o degradacion activa de papel o corto de espiras o conductor abierto"
+    },
+    {
+      "name": "EST_GLOB_FALLA_BOBINADO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estados_globales",
+      "description": "Estado global con falla de bobinado: corto de espiras o conductor abierto"
+    },
+    {
+      "name": "EST_GLOB_FIN_VIDA_PROXIMO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "estados_globales",
+      "description": "Estado global fin de vida proximo: papel cerca o en fin de vida o fin de vida termica"
+    },
+    {
+      "name": "H_CONV_CORTO_ESPIRAS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "convergencia_diagnostica",
+      "description": "Hipotesis reforzada: corto de espiras confirmado por TTR+R y por DGA termica alta o gases metano"
+    },
+    {
+      "name": "H_CONV_CORTO_ESPIRAS_MECANICO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "convergencia_diagnostica",
+      "description": "Hipotesis reforzada: corto de espiras con confirmacion mecanica por FRA en banda HF"
+    },
+    {
+      "name": "H_CONV_FIN_VIDA_PAPEL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "convergencia_diagnostica",
+      "description": "Hipotesis reforzada: fin de vida del papel por convergencia termico + DP minimo + DP convergente"
+    },
+    {
+      "name": "PRIORIDAD_SALIDA_URGENTE_OLTC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Maxima prioridad: salida urgente por OLTC (descarga anormal o falla vacuum)"
+    },
+    {
+      "name": "PRIORIDAD_DIAGNOSTICO_MAYOR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Segunda prioridad: salida para diagnostico mayor (corto de espiras, conductor abierto, falla compleja FRA, falla critica DGA)"
+    },
+    {
+      "name": "PRIORIDAD_SALIDA_INSPECCION_DGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Tercera prioridad: salida para inspeccion por DGA (arco, IEEE C4, C2H2 alto creciente)"
+    },
+    {
+      "name": "PRIORIDAD_REGENERACION_ACEITE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "prioridad_accion",
+      "description": "Cuarta prioridad: regeneracion de aceite (aceite pobre, marginal+MQI marginal)"
+    },
+    {
+      "name": "PRIORIDAD_MONITOREO_NORMAL_GLOBAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "prioridad_accion",
+      "description": "Prioridad mas baja: monitoreo normal cuando no hay acciones de mayor prioridad activas"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "ACEITE_EN_BUEN_ESTADO AND PAPEL_SANO AND NOT DGA_HIPOTESIS_ACTIVA AND NOT CORTO_ESPIRAS_INFERIDO AND NOT CONEXION_FLOJA_INFERIDA AND EST_GLOB_INTEGRIDAD_COMPLETA"
+      ],
+      "_group": "estados_globales",
+      "description": "Integridad completa: todos los subsistemas sanos"
+    },
+    {
+      "constraints": [
+        "ACEITE_EN_BUEN_ESTADO AND PAPEL_SANO AND NOT DGA_HIPOTESIS_ACTIVA AND EST_GLOB_SANO"
+      ],
+      "_group": "estados_globales",
+      "description": "Sano: aceite, papel y DGA limpios (hallazgos electricos menores permitidos)"
+    },
+    {
+      "constraints": [
+        "ACEITE_MARGINAL AND PAPEL_ENVEJ_AVANZADO AND NOT DGA_PAPEL_DEG_ACTIVA AND EST_GLOB_ENVEJ_CONCORDANTE"
+      ],
+      "_group": "estados_globales",
+      "description": "Envejecimiento concordante: aceite y papel envejecidos en paralelo, sin degradacion activa"
+    },
+    {
+      "constraints": [
+        "(DGA_TERMICA_ALTA OR DGA_ARCO OR DGA_PAPEL_DEG_ACTIVA OR CORTO_ESPIRAS_INFERIDO OR CONDUCTOR_ABIERTO_INFERIDO) AND EST_GLOB_FALLA_ACTIVA"
+      ],
+      "_group": "estados_globales",
+      "description": "Falla activa: cualquier hipotesis de falla activa de bobinado o DGA severo"
+    },
+    {
+      "constraints": [
+        "(CORTO_ESPIRAS_INFERIDO OR CONDUCTOR_ABIERTO_INFERIDO) AND EST_GLOB_FALLA_BOBINADO"
+      ],
+      "_group": "estados_globales",
+      "description": "Falla bobinado: corto o conductor abierto"
+    },
+    {
+      "constraints": [
+        "(PAPEL_FIN_VIDA_O_CERCA OR FIN_VIDA_TERMICA_PRESENTE) AND EST_GLOB_FIN_VIDA_PROXIMO"
+      ],
+      "_group": "estados_globales",
+      "description": "Fin de vida proximo: papel agotado o vida termica consumida"
+    },
+    {
+      "constraints": [
+        "CORTO_ESPIRAS_INFERIDO AND (DGA_TERMICA_ALTA OR DGA_GASES_METANO_PRESENTE) AND H_CONV_CORTO_ESPIRAS"
+      ],
+      "_group": "convergencia_diagnostica",
+      "description": "Convergencia corto de espiras: TTR+R coinciden con DGA termico"
+    },
+    {
+      "constraints": [
+        "CORTO_ESPIRAS_INFERIDO AND BANDA_HF_ANOMALA AND H_CONV_CORTO_ESPIRAS_MECANICO"
+      ],
+      "_group": "convergencia_diagnostica",
+      "description": "Convergencia corto de espiras + dano mecanico: TTR+R coinciden con FRA HF"
+    },
+    {
+      "constraints": [
+        "FIN_VIDA_TERMICA_PRESENTE AND DP_MIN_MENOR_200 AND DP_CONVERGENTE_TERMICO_QUIMICO AND H_CONV_FIN_VIDA_PAPEL"
+      ],
+      "_group": "convergencia_diagnostica",
+      "description": "Convergencia fin de vida del papel: termico + quimico coherentes"
+    },
+    {
+      "constraints": [
+        "NOT PRIORIDAD_SALIDA_URGENTE_OLTC AND NOT PRIORIDAD_DIAGNOSTICO_MAYOR AND NOT PRIORIDAD_SALIDA_INSPECCION_DGA AND NOT PRIORIDAD_REGENERACION_ACEITE AND PRIORIDAD_MONITOREO_NORMAL_GLOBAL"
+      ],
+      "_group": "prioridad_accion",
+      "description": "Prioridad monitoreo normal solo cuando ninguna prioridad mayor esta activa"
+    }
+  ],
+  "functions": []
+}

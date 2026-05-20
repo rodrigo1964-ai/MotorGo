@@ -1,0 +1,658 @@
+{
+		"variables": [
+			{
+				"name": "STOCK_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 0
+			},
+			{
+				"name": "PEDIDO_URGENTE",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					false
+				],
+				"id": 1
+			},
+			{
+				"name": "CALIDAD_OK",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 2
+			},
+			{
+				"name": "PROVEEDOR_ACTIVO",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					true
+				],
+				"id": 3
+			},
+			{
+				"name": "DEVOLUCION",
+				"type": "boolean",
+				"domain": [
+					true,
+					false
+				],
+				"value": [
+					false
+				],
+				"id": 4
+			},
+			{
+				"name": "CATEGORIA",
+				"type": "set",
+				"domain": [
+					"CAT_A",
+					"CAT_B",
+					"CAT_C"
+				],
+				"value": [
+					"CAT_A"
+				],
+				"id": 5
+			},
+			{
+				"name": "ESTADO",
+				"type": "set",
+				"domain": [
+					"RECIBIDO",
+					"INSPECCIONADO",
+					"LIBERADO",
+					"RECHAZADO"
+				],
+				"value": [
+					"LIBERADO"
+				],
+				"id": 6
+			},
+			{
+				"name": "ALMACEN",
+				"type": "set",
+				"domain": [
+					"NORTE",
+					"SUR",
+					"CENTRAL"
+				],
+				"value": [
+					"CENTRAL"
+				],
+				"id": 7
+			},
+			{
+				"name": "CANTIDAD",
+				"type": "integer",
+				"domain": [
+					10,
+					20,
+					50,
+					100,
+					200,
+					500,
+					1000
+				],
+				"value": [
+					100,
+					200,
+					500
+				],
+				"id": 8
+			},
+			{
+				"name": "DIAS_ENTREGA",
+				"type": "integer",
+				"domain": [
+					1,
+					2,
+					3,
+					5,
+					7,
+					10,
+					15,
+					20,
+					30
+				],
+				"value": [
+					3,
+					5,
+					7
+				],
+				"id": 9
+			},
+			{
+				"name": "PRECIO",
+				"type": "numeric",
+				"domain": [
+					1,
+					1000
+				],
+				"value": [
+					50,
+					150
+				],
+				"id": 10
+			}
+		],
+		"functions": [],
+		"constraints": [
+			{
+				"id": 0,
+				"expr": "STOCK_OK = true AND CALIDAD_OK = true",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "STOCK_OK"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "CALIDAD_OK"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					0,
+					2
+				],
+				"func_refs": []
+			},
+			{
+				"id": 1,
+				"expr": "PEDIDO_URGENTE = false",
+				"root": 2,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PEDIDO_URGENTE"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "FALSE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					}
+				],
+				"var_refs": [
+					1
+				],
+				"func_refs": []
+			},
+			{
+				"id": 2,
+				"expr": "PROVEEDOR_ACTIVO = true AND DEVOLUCION = false",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PROVEEDOR_ACTIVO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "TRUE"
+					},
+					{
+						"id": 2,
+						"type": "Equals",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "DEVOLUCION"
+					},
+					{
+						"id": 4,
+						"type": "Variable",
+						"name": "FALSE"
+					},
+					{
+						"id": 5,
+						"type": "Equals",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					3,
+					4
+				],
+				"func_refs": []
+			},
+			{
+				"id": 3,
+				"expr": "CATEGORIA IN {CAT_A, CAT_B}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CATEGORIA"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "CAT_A"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "CAT_B"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					5
+				],
+				"func_refs": []
+			},
+			{
+				"id": 4,
+				"expr": "ESTADO IN {INSPECCIONADO, LIBERADO}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ESTADO"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "INSPECCIONADO"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "LIBERADO"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					6
+				],
+				"func_refs": []
+			},
+			{
+				"id": 5,
+				"expr": "ALMACEN IN {NORTE, CENTRAL}",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "ALMACEN"
+					},
+					{
+						"id": 1,
+						"type": "Variable",
+						"name": "NORTE"
+					},
+					{
+						"id": 2,
+						"type": "Variable",
+						"name": "CENTRAL"
+					},
+					{
+						"id": 3,
+						"type": "Set",
+						"elements": [
+							1,
+							2
+						]
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					7
+				],
+				"func_refs": []
+			},
+			{
+				"id": 6,
+				"expr": "CANTIDAD IN [50, 1000]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CANTIDAD"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 50
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 1000
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					8
+				],
+				"func_refs": []
+			},
+			{
+				"id": 7,
+				"expr": "DIAS_ENTREGA IN [1, 10]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "DIAS_ENTREGA"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 1
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 10
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					9
+				],
+				"func_refs": []
+			},
+			{
+				"id": 8,
+				"expr": "PRECIO IN [10.0, 500.0]",
+				"root": 4,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "PRECIO"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 10
+					},
+					{
+						"id": 2,
+						"type": "Number",
+						"value": 500
+					},
+					{
+						"id": 3,
+						"type": "Interval",
+						"lo": 1,
+						"hi": 2,
+						"lo_open": false,
+						"hi_open": false
+					},
+					{
+						"id": 4,
+						"type": "In",
+						"left": 0,
+						"right": 3
+					}
+				],
+				"var_refs": [
+					10
+				],
+				"func_refs": []
+			},
+			{
+				"id": 9,
+				"expr": "CANTIDAD >= 100 AND DIAS_ENTREGA <= 10",
+				"root": 6,
+				"nodes": [
+					{
+						"id": 0,
+						"type": "Variable",
+						"name": "CANTIDAD"
+					},
+					{
+						"id": 1,
+						"type": "Number",
+						"value": 100
+					},
+					{
+						"id": 2,
+						"type": "GreaterEq",
+						"left": 0,
+						"right": 1
+					},
+					{
+						"id": 3,
+						"type": "Variable",
+						"name": "DIAS_ENTREGA"
+					},
+					{
+						"id": 4,
+						"type": "Number",
+						"value": 10
+					},
+					{
+						"id": 5,
+						"type": "LessEq",
+						"left": 3,
+						"right": 4
+					},
+					{
+						"id": 6,
+						"type": "And",
+						"left": 2,
+						"right": 5
+					}
+				],
+				"var_refs": [
+					8,
+					9
+				],
+				"func_refs": []
+			}
+		],
+		"adjacency": [
+			{
+				"var_id": 0,
+				"name": "STOCK_OK",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 1,
+				"name": "PEDIDO_URGENTE",
+				"constraint_ids": [
+					1
+				]
+			},
+			{
+				"var_id": 2,
+				"name": "CALIDAD_OK",
+				"constraint_ids": [
+					0
+				]
+			},
+			{
+				"var_id": 3,
+				"name": "PROVEEDOR_ACTIVO",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 4,
+				"name": "DEVOLUCION",
+				"constraint_ids": [
+					2
+				]
+			},
+			{
+				"var_id": 5,
+				"name": "CATEGORIA",
+				"constraint_ids": [
+					3
+				]
+			},
+			{
+				"var_id": 6,
+				"name": "ESTADO",
+				"constraint_ids": [
+					4
+				]
+			},
+			{
+				"var_id": 7,
+				"name": "ALMACEN",
+				"constraint_ids": [
+					5
+				]
+			},
+			{
+				"var_id": 8,
+				"name": "CANTIDAD",
+				"constraint_ids": [
+					6,
+					9
+				]
+			},
+			{
+				"var_id": 9,
+				"name": "DIAS_ENTREGA",
+				"constraint_ids": [
+					7,
+					9
+				]
+			},
+			{
+				"var_id": 10,
+				"name": "PRECIO",
+				"constraint_ids": [
+					8
+				]
+			}
+		]
+	}

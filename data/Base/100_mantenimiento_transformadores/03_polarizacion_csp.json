@@ -1,0 +1,204 @@
+{
+  "_metadata": {
+    "dominio": "mantenimiento_transformadores",
+    "subdominio": "indice_polarizacion_pi_dar",
+    "norma": "IEEE 43 / IEC 60076-1",
+    "descripcion": "Ensayo de resistencia de aislamiento con calculo de indice de polarizacion (PI = R(10min)/R(1min)) e indice de absorcion dielectrica (DAR = R(60s)/R(30s)). Diagnostico del estado del aislamiento del transformador",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Mantenimiento de Transformadores de Potencia' (Rodrigo 2026), Parte I, Seccion 5"
+  },
+  "variables": [
+    {
+      "name": "R_AISLACION_1MIN_GOHM",
+      "type": "numeric",
+      "domain": [0.0, 1000.0],
+      "value": [5.0, 1000.0],
+      "section": "predicados_derivados",
+      "description": "Resistencia de aislacion a 1 minuto, corregida a 20C, en GOhm"
+    },
+    {
+      "name": "PI",
+      "type": "numeric",
+      "domain": [0.5, 10.0],
+      "value": [2.0, 4.0],
+      "section": "predicados_derivados",
+      "description": "Indice de polarizacion: cociente R_ais(10min) / R_ais(1min)"
+    },
+    {
+      "name": "DAR",
+      "type": "numeric",
+      "domain": [0.5, 5.0],
+      "value": [1.4, 1.6],
+      "section": "predicados_derivados",
+      "description": "Indice de absorcion dielectrica: cociente R_ais(60s) / R_ais(30s)"
+    },
+    {
+      "name": "TEMP_MEDICION_C",
+      "type": "numeric",
+      "domain": [10.0, 90.0],
+      "value": [20.0, 30.0],
+      "section": "predicados_derivados",
+      "description": "Temperatura del aceite al momento de la medicion, en C"
+    },
+    {
+      "name": "PI_DIAGNOSTICABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "validez",
+      "description": "Guarda de validez: PI solo es diagnosticable cuando R_AISLACION_1MIN_GOHM < 5 GOhm. Por encima de ese valor el cociente pierde significado fisico (saturacion del megger)"
+    },
+    {
+      "name": "PI_NO_APLICABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "validez",
+      "description": "PI no aplicable: R_ais a 1 min muy alta, el cociente es ruidoso o saturado"
+    },
+    {
+      "name": "EST_AIS_EXCELENTE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado de aislacion excelente: PI > 4.0 (con guarda de validez satisfecha)"
+    },
+    {
+      "name": "EST_AIS_ACEPTABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "clasificadores",
+      "description": "Estado de aislacion aceptable: PI en [2.0, 4.0]"
+    },
+    {
+      "name": "EST_AIS_MARGINAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado de aislacion marginal: PI en [1.5, 2.0)"
+    },
+    {
+      "name": "EST_AIS_CUESTIONABLE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado de aislacion cuestionable: PI en (1.0, 1.5)"
+    },
+    {
+      "name": "EST_AIS_CRITICO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "clasificadores",
+      "description": "Estado de aislacion critico: PI aproximadamente 1.0 (no hay efecto de polarizacion, aislacion conductiva)"
+    },
+    {
+      "name": "A_MONITOREO_AISLACION_NORMAL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [true],
+      "section": "acciones",
+      "description": "Accion: continuar monitoreo normal de la aislacion. Inferido cuando EST_AIS_EXCELENTE o EST_AIS_ACEPTABLE"
+    },
+    {
+      "name": "A_INVESTIGAR_AISLACION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: investigar causa de degradacion de aislacion (humedad, contaminacion). Inferido cuando EST_AIS_MARGINAL o EST_AIS_CUESTIONABLE"
+    },
+    {
+      "name": "A_INTERVENCION_AISLACION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "acciones",
+      "description": "Accion: intervencion urgente del aislamiento (secado al vacio, regeneracion de aceite o salida de servicio). Inferido cuando EST_AIS_CRITICO"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "R_AISLACION_1MIN_GOHM < 5.0 AND PI_DIAGNOSTICABLE"
+      ],
+      "_group": "guarda_validez",
+      "description": "PI diagnosticable cuando R_ais(1min) < 5 GOhm: el indice tiene significado fisico"
+    },
+    {
+      "constraints": [
+        "R_AISLACION_1MIN_GOHM >= 5.0 AND PI_NO_APLICABLE"
+      ],
+      "_group": "guarda_validez",
+      "description": "PI no aplicable: con R_ais muy alta el cociente pierde resolucion"
+    },
+    {
+      "constraints": [
+        "PI_DIAGNOSTICABLE AND PI > 4.0 AND EST_AIS_EXCELENTE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aislacion excelente: PI > 4 (con guarda valida)"
+    },
+    {
+      "constraints": [
+        "PI_DIAGNOSTICABLE AND PI >= 2.0 AND PI <= 4.0 AND EST_AIS_ACEPTABLE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aislacion aceptable: PI en [2,4]"
+    },
+    {
+      "constraints": [
+        "PI_DIAGNOSTICABLE AND PI >= 1.5 AND PI < 2.0 AND EST_AIS_MARGINAL"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aislacion marginal: PI en [1.5, 2)"
+    },
+    {
+      "constraints": [
+        "PI_DIAGNOSTICABLE AND PI > 1.0 AND PI < 1.5 AND EST_AIS_CUESTIONABLE"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aislacion cuestionable: PI en (1, 1.5)"
+    },
+    {
+      "constraints": [
+        "PI_DIAGNOSTICABLE AND PI <= 1.0 AND EST_AIS_CRITICO"
+      ],
+      "_group": "clasificadores_disparo",
+      "description": "Aislacion critica: PI ~ 1 (sin polarizacion observable)"
+    },
+    {
+      "constraints": [
+        "(EST_AIS_EXCELENTE OR EST_AIS_ACEPTABLE) AND A_MONITOREO_AISLACION_NORMAL"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion monitoreo normal cuando aislacion excelente o aceptable"
+    },
+    {
+      "constraints": [
+        "(EST_AIS_MARGINAL OR EST_AIS_CUESTIONABLE) AND A_INVESTIGAR_AISLACION"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion investigar cuando aislacion marginal o cuestionable"
+    },
+    {
+      "constraints": [
+        "EST_AIS_CRITICO AND A_INTERVENCION_AISLACION"
+      ],
+      "_group": "reglas_accion",
+      "description": "Accion intervencion urgente cuando aislacion critica"
+    },
+    {
+      "constraints": [
+        "R_AISLACION_1MIN_GOHM IN [0.0, 1000.0] AND PI IN [0.5, 10.0] AND DAR IN [0.5, 5.0] AND TEMP_MEDICION_C IN [10.0, 90.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para las variables numericas"
+    }
+  ],
+  "functions": []
+}

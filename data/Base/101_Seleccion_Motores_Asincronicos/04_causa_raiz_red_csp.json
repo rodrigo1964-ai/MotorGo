@@ -1,0 +1,130 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "capa_localizacion_causa_red",
+    "norma": "IEC 60034-1 / IEC 60204-1 / IEEE 519 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Capa de localizacion: separa el modo de falla (que paso al motor) de su causa raiz en la red electrica de alimentacion (que del sistema lo provoco). Cubre las cuatro causas raiz de red: subtension sostenida, perdida de fase, cortocircuito debil de barra, transitorios de sobretension",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte II, Seccion 6.1"
+  },
+  "variables": [
+    {
+      "name": "S_CC_REL_PN",
+      "type": "numeric",
+      "domain": [1.0, 200.0],
+      "value": [25.0, 100.0],
+      "section": "predicados_derivados",
+      "description": "Potencia de cortocircuito en barra del motor relativa a la potencia nominal del motor (S_cc / P_n). Default sano > 20 indica red robusta"
+    },
+    {
+      "name": "H_SOBRECARGA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Hipotesis de sobrecarga termica del estator (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "H_SUBTENSION",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Hipotesis de subtension sostenida (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "H_1FASE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Hipotesis de single-phasing (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "H_SOBRET_TRANS",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Hipotesis de sobretension transitoria (entrada desde 01_signatura_estator)"
+    },
+    {
+      "name": "BETA_PROT_ASIM_INSTALADA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Proteccion de perdida de fase / asimetria instalada y vigente al momento de la falla. Si NO esta instalada, una perdida de fase pasa sin disparar y quema el motor"
+    },
+    {
+      "name": "C_RED_SUBT",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "causas_raiz",
+      "description": "Causa raiz: red con subtension sostenida (caida de tension en linea de alimentacion, transformador sobrecargado, derivacion compartida)"
+    },
+    {
+      "name": "C_RED_PF",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "causas_raiz",
+      "description": "Causa raiz: perdida de fase en la red Y proteccion contra perdida de fase NO instalada (la perdida no fue detectada y el motor opero monofasicamente)"
+    },
+    {
+      "name": "C_RED_CC_DEBIL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "causas_raiz",
+      "description": "Causa raiz: cortocircuito debil en barra del motor (S_cc < 20 * P_n) que produce caidas de tension repetidas en arranque y operacion"
+    },
+    {
+      "name": "C_RED_TRANSIT",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "causas_raiz",
+      "description": "Causa raiz: transitorios de sobretension en la red (descarga atmosferica, conmutacion de bancos capacitivos, recierres automaticos)"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "H_SUBTENSION AND C_RED_SUBT"
+      ],
+      "_group": "reglas_causa_raiz",
+      "description": "C_RED_SUBT <= H_SUBTENSION (Apunte 4, ec. 27)"
+    },
+    {
+      "constraints": [
+        "H_1FASE AND NOT BETA_PROT_ASIM_INSTALADA AND C_RED_PF"
+      ],
+      "_group": "reglas_causa_raiz",
+      "description": "C_RED_PF <= H_1FASE AND ausencia de proteccion de asimetria (Apunte 4, ec. 28)"
+    },
+    {
+      "constraints": [
+        "H_SOBRECARGA AND S_CC_REL_PN < 20.0 AND C_RED_CC_DEBIL"
+      ],
+      "_group": "reglas_causa_raiz",
+      "description": "C_RED_CC_DEBIL <= H_SOBRECARGA AND S_cc < 20 P_n (red con baja capacidad de cortocircuito induce caida de tension al arrancar) (Apunte 4, ec. 29)"
+    },
+    {
+      "constraints": [
+        "H_SOBRET_TRANS AND C_RED_TRANSIT"
+      ],
+      "_group": "reglas_causa_raiz",
+      "description": "C_RED_TRANSIT <= H_SOBRET_TRANS (Apunte 4, ec. 30)"
+    },
+    {
+      "constraints": [
+        "S_CC_REL_PN IN [1.0, 200.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraint de dominio para S_cc/P_n"
+    }
+  ],
+  "functions": []
+}

@@ -1,0 +1,346 @@
+{
+  "_metadata": {
+    "dominio": "seleccion_reemplazo_motores_asincronicos",
+    "subdominio": "capa_especificacion_reemplazo",
+    "norma": "IEC 60034-12 / NEMA MG-1 / Apuntes UNSJ Estimador 1-5",
+    "descripcion": "Reglas constructivas (no diagnosticas) que producen la especificacion S_* del motor de reemplazo: potencia (mantener o subir al siguiente paso IEC), tipo NEMA (B / C / D), metodo de arranque (DOL, soft-start, VFD) y protecciones complementarias (rele de asimetria, filtro dV/dt, anillo de descarga de eje, contador de arranques). Las reglas se disparan a partir de las causas raiz inferidas y de los clasificadores de adecuacion",
+    "version": "1.0",
+    "fuente": "Apunte de catedra UNSJ 'Sistema Experto de Seleccion de Reemplazo de Motores Asincronos' (Rodrigo 2026), Parte III, Seccion 9"
+  },
+  "variables": [
+    {
+      "name": "ADEC_PN_IN",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Clasificador de adecuacion de potencia (entrada desde 07_adecuacion_dimensionado)"
+    },
+    {
+      "name": "P_N_NUEVO_REQ_KW",
+      "type": "numeric",
+      "domain": [0.5, 1500.0],
+      "value": [10.0, 50.0],
+      "section": "predicados_derivados",
+      "description": "Potencia nuclea requerida nueva: P_op_max * 1.15. Pn_sig_IEC se aplica externamente en la implementacion final"
+    },
+    {
+      "name": "TARR_L_REL_TN_REP",
+      "type": "numeric",
+      "domain": [0.0, 4.0],
+      "value": [0.3, 0.6],
+      "section": "predicados_derivados",
+      "description": "Par de breakaway de la carga real, relativo al par nominal (necesario para elegir NEMA de reemplazo)"
+    },
+    {
+      "name": "P_N_REP_KW",
+      "type": "numeric",
+      "domain": [0.5, 1500.0],
+      "value": [10.0, 50.0],
+      "section": "predicados_derivados",
+      "description": "Potencia nominal del motor de reemplazo (kW). Necesaria para activar protecciones complementarias por potencia"
+    },
+    {
+      "name": "J_L_REL_J_M",
+      "type": "numeric",
+      "domain": [0.0, 200.0],
+      "value": [1.0, 10.0],
+      "section": "predicados_derivados",
+      "description": "Razon de inercia carga/motor. > 30 indica carga muy inercial (trituradora, molino) y exige NEMA D"
+    },
+    {
+      "name": "L_CABLE_M",
+      "type": "numeric",
+      "domain": [0.0, 1000.0],
+      "value": [10.0, 30.0],
+      "section": "predicados_derivados",
+      "description": "Longitud del cable entre arrancador/VFD y motor, en metros. > 30 m con VFD exige filtro dV/dt"
+    },
+    {
+      "name": "N_ARR_POR_HORA_REP",
+      "type": "numeric",
+      "domain": [0.0, 60.0],
+      "value": [0.0, 4.0],
+      "section": "predicados_derivados",
+      "description": "Frecuencia operativa demandada de arranques por hora en el nuevo regimen"
+    },
+    {
+      "name": "FAMTL_CUAD_REP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Familia matematica de la carga es cuadratica (bomba centrifuga, ventilador)"
+    },
+    {
+      "name": "APL_CINTA_CARGADA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion: cinta transportadora cargada (alta exigencia de par de arranque)"
+    },
+    {
+      "name": "APL_COMPRESOR_RECIP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion: compresor reciprocante sin descargador"
+    },
+    {
+      "name": "APL_MEZCLADOR_VISC",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion: mezclador de fluidos viscosos"
+    },
+    {
+      "name": "APL_TRITURADORA",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion: trituradora o molino (carga inercial alta)"
+    },
+    {
+      "name": "APL_ASCENSOR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion: ascensor (arranques frecuentes, control de posicion exige VFD)"
+    },
+    {
+      "name": "APL_MQHERRAM_HUSILLO",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Aplicacion: maquina herramienta con husillo posicionante (arranques frecuentes, control fino)"
+    },
+    {
+      "name": "C_OP_CICLOS_ROTOR_IN",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Causa raiz: ciclos termicos del rotor (entrada desde 06_causa_raiz_operacion_arranque)"
+    },
+    {
+      "name": "C_ARR_Y_DELTA_INAD_IN",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Causa raiz: Y-Delta inadecuado para cinta cargada (entrada desde 06_causa_raiz_operacion_arranque)"
+    },
+    {
+      "name": "C_RED_PF_IN",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Causa raiz: perdida de fase no protegida (entrada desde 04_causa_raiz_red)"
+    },
+    {
+      "name": "BETA_PROT_ASIM_INSTALADA_REP",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "predicados_derivados",
+      "description": "Proteccion de asimetria instalada (entrada desde 04_causa_raiz_red, replicada para activar Sprot)"
+    },
+    {
+      "name": "S_PN_MANTENER",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion: mantener Pn original. Aplica cuando el dimensionado original cubre la potencia operativa con margen"
+    },
+    {
+      "name": "S_PN_AGRANDAR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion: agrandar al siguiente paso IEC sobre P_op_max * 1.15. Externamente se aplica la serie comercial"
+    },
+    {
+      "name": "S_NEMA_B",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion NEMA B: jaula simple, para cargas cuadraticas con T_arr_L < 0.5 pu"
+    },
+    {
+      "name": "S_NEMA_C",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion NEMA C: jaula doble, para cargas con T_arr_L en [0.5, 2.0] pu o aplicaciones tipicamente exigentes (cinta cargada, compresor reciprocante, mezclador viscoso)"
+    },
+    {
+      "name": "S_NEMA_D",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion NEMA D: rotor de alta resistencia y alto deslizamiento, para cargas inerciales (trituradora, molino) con J_L/J_M > 30"
+    },
+    {
+      "name": "S_TARR_DOL",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion: arranque DOL (motor pequeno, red robusta, carga liviana)"
+    },
+    {
+      "name": "S_TARR_SOFT_START",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion: arranque soft-start (carga cuadratica de potencia media-alta)"
+    },
+    {
+      "name": "S_TARR_VFD",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion: arranque por VFD (ciclos termicos del rotor, arranques frecuentes, ascensor, husillo, o reemplazo de Y-Delta inadecuado en cinta cargada)"
+    },
+    {
+      "name": "S_PROT_RELE_ASIM",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion de proteccion: rele de asimetria / perdida de fase. Obligatoria si la causa fue C_red_pf o si la proteccion no estaba antes"
+    },
+    {
+      "name": "S_PROT_FILTRO_DVDT",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion de proteccion: filtro dV/dt entre VFD y motor. Obligatorio con VFD y cable > 30 m (control de reflexiones que causan sobretension en terminales del motor)"
+    },
+    {
+      "name": "S_PROT_ANILLO_EJE",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion de proteccion: anillo de descarga de eje (shaft grounding ring). Obligatorio con VFD y Pn > 30 kW para prevenir EDM en rodamientos"
+    },
+    {
+      "name": "S_PROT_CONTEO_ARR",
+      "type": "boolean",
+      "domain": [true, false],
+      "value": [false],
+      "section": "especificacion_reemplazo",
+      "description": "Especificacion de proteccion: contador de arranques por hora con bloqueo. Obligatorio si la causa raiz fue ciclos termicos del rotor"
+    }
+  ],
+  "expressions": [
+    {
+      "constraints": [
+        "ADEC_PN_IN AND S_PN_MANTENER"
+      ],
+      "_group": "reglas_seleccion_potencia",
+      "description": "S_PN_MANTENER <= AdecPn (Apunte 5, ec. 51)"
+    },
+    {
+      "constraints": [
+        "NOT ADEC_PN_IN AND P_N_NUEVO_REQ_KW > 0.0 AND S_PN_AGRANDAR"
+      ],
+      "_group": "reglas_seleccion_potencia",
+      "description": "S_PN_AGRANDAR <= NOT AdecPn AND existe nuevo requerimiento (Apunte 5, ec. 52). El paso comercial IEC se aplica externamente"
+    },
+    {
+      "constraints": [
+        "FAMTL_CUAD_REP AND TARR_L_REL_TN_REP < 0.5 AND S_NEMA_B"
+      ],
+      "_group": "reglas_seleccion_nema",
+      "description": "S_NEMA_B <= carga cuadratica con par < 0.5 (Apunte 5, ec. 53)"
+    },
+    {
+      "constraints": [
+        "(TARR_L_REL_TN_REP >= 0.5 AND TARR_L_REL_TN_REP <= 2.0) OR APL_CINTA_CARGADA OR APL_COMPRESOR_RECIP OR APL_MEZCLADOR_VISC AND S_NEMA_C"
+      ],
+      "_group": "reglas_seleccion_nema",
+      "description": "S_NEMA_C <= par en [0.5, 2.0] o aplicacion exigente (Apunte 5, ec. 54)"
+    },
+    {
+      "constraints": [
+        "APL_TRITURADORA AND J_L_REL_J_M > 30.0 AND S_NEMA_D"
+      ],
+      "_group": "reglas_seleccion_nema",
+      "description": "S_NEMA_D <= aplicacion trituradora/molino AND alta inercia (Apunte 5, ec. 55)"
+    },
+    {
+      "constraints": [
+        "(C_OP_CICLOS_ROTOR_IN OR N_ARR_POR_HORA_REP > 10.0 OR APL_ASCENSOR OR APL_MQHERRAM_HUSILLO OR (C_ARR_Y_DELTA_INAD_IN AND APL_CINTA_CARGADA)) AND S_TARR_VFD"
+      ],
+      "_group": "reglas_seleccion_arranque",
+      "description": "S_TARR_VFD <= ciclos termicos OR arranques frecuentes OR ascensor/husillo OR Y-Delta inadecuado en cinta cargada (Apunte 5, ecs. 56 y 58)"
+    },
+    {
+      "constraints": [
+        "NOT S_TARR_VFD AND FAMTL_CUAD_REP AND P_N_REP_KW > 15.0 AND S_TARR_SOFT_START"
+      ],
+      "_group": "reglas_seleccion_arranque",
+      "description": "S_TARR_SOFT_START <= no se requiere VFD AND carga cuadratica AND Pn > 15 kW (Apunte 5, ec. 57)"
+    },
+    {
+      "constraints": [
+        "P_N_REP_KW < 30.0 AND TARR_L_REL_TN_REP < 0.3 AND NOT S_TARR_VFD AND NOT S_TARR_SOFT_START AND S_TARR_DOL"
+      ],
+      "_group": "reglas_seleccion_arranque",
+      "description": "S_TARR_DOL <= motor < 30 kW AND par bajo AND no se requirio VFD ni soft-start (Apunte 5, ec. 59)"
+    },
+    {
+      "constraints": [
+        "(C_RED_PF_IN OR NOT BETA_PROT_ASIM_INSTALADA_REP) AND S_PROT_RELE_ASIM"
+      ],
+      "_group": "reglas_seleccion_protecciones",
+      "description": "S_PROT_RELE_ASIM <= C_RED_PF OR ausencia previa de proteccion de asimetria (Apunte 5, ec. 60)"
+    },
+    {
+      "constraints": [
+        "S_TARR_VFD AND L_CABLE_M > 30.0 AND S_PROT_FILTRO_DVDT"
+      ],
+      "_group": "reglas_seleccion_protecciones",
+      "description": "S_PROT_FILTRO_DVDT <= VFD AND cable > 30 m (Apunte 5, ec. 61)"
+    },
+    {
+      "constraints": [
+        "S_TARR_VFD AND P_N_REP_KW > 30.0 AND S_PROT_ANILLO_EJE"
+      ],
+      "_group": "reglas_seleccion_protecciones",
+      "description": "S_PROT_ANILLO_EJE <= VFD AND Pn > 30 kW (Apunte 5, ec. 62)"
+    },
+    {
+      "constraints": [
+        "C_OP_CICLOS_ROTOR_IN AND S_PROT_CONTEO_ARR"
+      ],
+      "_group": "reglas_seleccion_protecciones",
+      "description": "S_PROT_CONTEO_ARR <= ciclos termicos del rotor (Apunte 5, ec. 63)"
+    },
+    {
+      "constraints": [
+        "P_N_NUEVO_REQ_KW IN [0.5, 1500.0] AND TARR_L_REL_TN_REP IN [0.0, 4.0] AND P_N_REP_KW IN [0.5, 1500.0] AND J_L_REL_J_M IN [0.0, 200.0] AND L_CABLE_M IN [0.0, 1000.0] AND N_ARR_POR_HORA_REP IN [0.0, 60.0]"
+      ],
+      "_group": "validacion_dominios",
+      "description": "Constraints de dominio para variables numericas"
+    }
+  ],
+  "functions": []
+}
